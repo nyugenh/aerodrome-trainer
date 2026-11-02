@@ -2444,6 +2444,7 @@
           const ends = runwayEnds(f);
           if (!ends) continue;
           if (!(showAll || reveal(f))) continue;
+          if (mode === "quiz" && quiz && quiz.kind === "find") continue;
           for (const e of ends) {
             if (
               mode === "quiz" &&
