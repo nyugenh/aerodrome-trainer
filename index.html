@@ -4235,6 +4235,31 @@
         renderSide();
         render();
       }
+      // Only allow the kinds of characters the correct answer contains.
+      function charClass(s) {
+        let c = "";
+        if (/[a-z]/i.test(s)) c += "a-zA-Z";
+        if (/\d/.test(s)) c += "0-9";
+        const other = [...new Set(s.replace(/[a-z0-9]/gi, ""))].join("");
+        return "[" + c + other.replace(/[\\\]\^-]/g, "\\$&") + "]";
+      }
+      document.addEventListener("input", (e) => {
+        const t = e.target,
+          cc = t && t.dataset && t.dataset.chars;
+        if (!cc) return;
+        const re = new RegExp(cc),
+          v = Array.from(t.value)
+            .filter((ch) => re.test(ch))
+            .join("");
+        if (v !== t.value) {
+          const pos = Math.max(
+            0,
+            (t.selectionStart || 0) - (t.value.length - v.length),
+          );
+          t.value = v;
+          t.setSelectionRange(pos, pos);
+        }
+      });
       function answerText(txt) {
         if (!quiz || quiz.answered) return;
         const skipped = !String(txt).trim();
@@ -4438,8 +4463,8 @@
           } else if (choices && QOPT.typed && quiz.kind !== "find")
             q +=
               quiz.kind === "dims"
-                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" maxlength="${String(f.len).length}" placeholder="Length" aria-label="Length in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" maxlength="${String(f.wid).length}" placeholder="Width" aria-label="Width in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedB || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
-                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" maxlength="${String(quiz.correct).trim().length}" placeholder="Type a name…" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
+                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" data-chars="[0-9]" maxlength="${String(f.len).length}" placeholder="Length" aria-label="Length in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" data-chars="[0-9]" maxlength="${String(f.wid).length}" placeholder="Width" aria-label="Width in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedB || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
+                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" data-chars="${esc(charClass(String(quiz.correct)))}" maxlength="${String(quiz.correct).trim().length}" placeholder="Type a name…" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
           else if (choices)
             q += `<div class="choices" role="group" aria-label="Answers">${quiz.choices
               .map((c, i) => {
