@@ -2975,7 +2975,19 @@
       }
       // Two-finger pinch zoom + pan. These capture-phase handlers swallow events while a pinch is active.
       const touches = new Map();
-      let pinch = null;
+      let pinch = null,
+        tapCand = null;
+      // Fingers can lift over an element that a redraw has removed; clear them at document level so none go stale.
+      const dropTouch = (ev) => {
+        if (ev.type === "pointercancel") {
+          panning = null;
+          tapCand = null;
+        }
+        if (!touches.delete(ev.pointerId)) return;
+        if (touches.size === 0) pinch = null;
+      };
+      document.addEventListener("pointerup", dropTouch);
+      document.addEventListener("pointercancel", dropTouch);
       const pinchGeom = () => {
         const [a, b] = [...touches.values()];
         return {
@@ -2987,8 +2999,12 @@
       svg.addEventListener(
         "pointerdown",
         (ev) => {
-          touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+          if (ev.pointerType === "touch") {
+            touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+            svg.setPointerCapture(ev.pointerId);
+          }
           if (touches.size === 2 && ev.pointerType === "touch") {
+            tapCand = null;
             if (drag) {
               drag.f.pts = drag.orig;
               undoStack.pop();
@@ -2998,7 +3014,6 @@
             panning = null;
             pinch = pinchGeom();
             hover = null;
-            svg.setPointerCapture(ev.pointerId);
           }
           if (pinch) ev.stopImmediatePropagation();
         },
@@ -3051,6 +3066,17 @@
             tg.dataset.id &&
             findable(tg.dataset.id)
           ) {
+            if (ev.pointerType === "touch") {
+              const id = tg.dataset.id;
+              tapCand = {
+                pointerId: ev.pointerId,
+                x: ev.clientX,
+                y: ev.clientY,
+                run: () => answerFind(id),
+              };
+              startPan(ev);
+              return;
+            }
             answerFind(tg.dataset.id);
             return;
           }
@@ -3059,10 +3085,20 @@
         }
         if (mode === "study") {
           if (tg.dataset.id && named(byId(tg.dataset.id))) {
+            if (ev.pointerType === "touch") {
+              const id = tg.dataset.id;
+              tapCand = {
+                pointerId: ev.pointerId,
+                x: ev.clientX,
+                y: ev.clientY,
+                run: () => selectFeature(id),
+              };
+              startPan(ev);
+              return;
+            }
             selectFeature(tg.dataset.id);
             return;
           }
-          startPan(ev);
           startPan(ev);
           return;
         }
@@ -3234,7 +3270,9 @@
         if (!kb) cursor = null;
         if (had) render();
       });
-      svg.addEventListener("pointerup", () => {
+      svg.addEventListener("pointerup", (ev) => {
+        const tc = tapCand;
+        tapCand = null;
         if (drag) {
           const d = drag;
           drag = null;
@@ -3249,6 +3287,12 @@
           panning = null;
           svg.style.cursor = "";
         }
+        if (
+          tc &&
+          tc.pointerId === ev.pointerId &&
+          Math.hypot(ev.clientX - tc.x, ev.clientY - tc.y) < 10
+        )
+          tc.run();
       });
       svg.addEventListener(
         "wheel",
