@@ -4429,9 +4429,17 @@
         if (quiz && quiz.focus) {
           const t = quiz.focus;
           quiz.focus = null;
-          const target = t === "next" ? $("qnext") : $("qhead") || $("typed");
+          const target =
+            t === "next"
+              ? $("qnext")
+              : $("qhead") ||
+                ($("typed") && !window.matchMedia("(pointer: coarse)").matches
+                  ? $("typed")
+                  : null);
           if (target) target.focus({ preventScroll: true });
-          if (t === "first" && $("typed")) $("typed").focus();
+          // Focusing the input on touch devices opens the keyboard and scrolls away from the map
+          const coarse = window.matchMedia("(pointer: coarse)").matches;
+          if (t === "first" && $("typed") && !coarse) $("typed").focus();
         }
       }
 
