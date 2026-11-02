@@ -4111,6 +4111,10 @@
       function answerText(txt) {
         if (!quiz || quiz.answered) return;
         const skipped = !String(txt).trim();
+        const ta = $("typed"),
+          tb = $("typed2");
+        quiz.typedA = ta ? ta.value : "";
+        quiz.typedB = tb ? tb.value : "";
         if (quiz.kind === "conn") {
           const p = parseConnText(txt);
           finishConn(p.ids, p.unknown);
@@ -4306,8 +4310,8 @@
           } else if (choices && QOPT.typed && quiz.kind !== "find")
             q +=
               quiz.kind === "dims"
-                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" placeholder="Length" aria-label="Length in metres" autocomplete="off" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" placeholder="Width" aria-label="Width in metres" autocomplete="off" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
-                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" placeholder="Type a name…" autocomplete="off" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
+                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" placeholder="Length" aria-label="Length in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" placeholder="Width" aria-label="Width in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedB || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
+                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" placeholder="Type a name…" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
           else if (choices)
             q += `<div class="choices" role="group" aria-label="Answers">${quiz.choices
               .map((c, i) => {
