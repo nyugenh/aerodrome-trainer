@@ -4189,14 +4189,20 @@
             quiz.opts = o.opts;
             quiz.corr = o.right;
           }
-          if (quiz.kind !== "find") centerOn(f);
+          if (quiz.kind !== "find")
+            centerOn(f, target && target.end ? target.end.pt : null);
         }
         renderSide();
         render();
         updateHint();
       }
-      function centerOn(f) {
-        const c = centroid(f);
+      function centerOn(f, focusPoint = null) {
+        const c = focusPoint || centroid(f);
+        if (focusPoint) {
+          vb.x = c.x - vb.w / 2;
+          vb.y = c.y - vb.h / 2;
+          return;
+        }
         if (
           c.x < vb.x ||
           c.x > vb.x + vb.w ||
