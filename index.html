@@ -1367,6 +1367,7 @@
         cursor = null,
         kb = null,
         hover = null,
+        hoverEnd = null,
         labelsOn = true;
       let vb = { x: 0, y: 0, w: 1600, h: 1000 };
       const undoStack = [],
@@ -2162,7 +2163,30 @@
           m = Math.min(m, segDist(p, f.pts[n - 1], f.pts[0]));
         return m;
       };
+      const endFinding = () =>
+        mode === "quiz" &&
+        quiz &&
+        quiz.kind === "find" &&
+        !quiz.answered &&
+        !!quiz.findEnd;
+      // Runway-end questions: nearest runway end within reach is the only valid target
+      const endTarget = (ev) => {
+        const w = toWorld(ev),
+          reach = REACH / scale();
+        let best = null,
+          bd = reach;
+        for (const f of S.features)
+          for (const e of runwayEnds(f) || []) {
+            const d = dist(w, e.pt);
+            if (d < bd) {
+              bd = d;
+              best = { dataset: { id: f.id, end: e.idx } };
+            }
+          }
+        return best || { dataset: {} };
+      };
       const hitTarget = (ev) => {
+        if (endFinding()) return endTarget(ev);
         const finding =
           mode === "quiz" && quiz && quiz.kind === "find" && !quiz.answered;
         if (!finding && mode !== "study") return ev.target;
@@ -2294,7 +2318,50 @@
             drawFeature(f, gMain, k);
 
         // highlights
-        if (hoverOK() && byId(hover) && !(mode === "study" && hover === sel))
+        if (endFinding()) {
+          // Only runway ends are selectable: mark them all faintly and the hovered one clearly
+          for (const f of S.features) {
+            for (const e of runwayEnds(f) || []) {
+              const on = hover === f.id && hoverEnd === e.idx;
+              if (on)
+                el(
+                  "circle",
+                  {
+                    cx: e.pt.x,
+                    cy: e.pt.y,
+                    r: 32 * k,
+                    fill: "#f0f4ff",
+                    "fill-opacity": 0.18,
+                    stroke: "#000",
+                    "stroke-width": 9 * k,
+                    opacity: 0.55,
+                    "pointer-events": "none",
+                  },
+                  gUI,
+                );
+              el(
+                "circle",
+                {
+                  cx: e.pt.x,
+                  cy: e.pt.y,
+                  r: (on ? 30 : 18) * k,
+                  fill: on ? "#f0f4ff" : "none",
+                  "fill-opacity": on ? 0.3 : 0,
+                  stroke: "#f0f4ff",
+                  "stroke-width": (on ? 5 : 2) * k,
+                  "stroke-dasharray": on ? "" : `${6 * k} ${5 * k}`,
+                  opacity: on ? 1 : 0.55,
+                  "pointer-events": "none",
+                },
+                gUI,
+              );
+            }
+          }
+        } else if (
+          hoverOK() &&
+          byId(hover) &&
+          !(mode === "study" && hover === sel)
+        )
           highlight(
             byId(hover),
             "#f0f4ff",
@@ -2316,11 +2383,14 @@
         const nameEnd =
           mode === "quiz" &&
           quiz &&
-          quiz.kind === "name" &&
-          quiz.nameEnd &&
+          ((quiz.kind === "name" && quiz.nameEnd) ||
+            (quiz.kind === "find" && quiz.answered && quiz.findEnd)) &&
           byId(quiz.cur) &&
           byId(quiz.cur).type === "runway"
-            ? { feature: byId(quiz.cur), end: quiz.nameEnd }
+            ? {
+                feature: byId(quiz.cur),
+                end: quiz.kind === "name" ? quiz.nameEnd : quiz.findEnd,
+              }
             : null;
         const placed = [];
         const box = (x, y, text, fs) => ({
@@ -2961,7 +3031,9 @@
         else if (!quiz || quiz.idle || quiz.done)
           h.textContent = "Choose a quiz type and press Start";
         else if (quiz.kind === "find")
-          h.textContent = "Click the feature on the map";
+          h.textContent = quiz.findEnd
+            ? `Click runway end ${quiz.findEnd.label} on the map`
+            : "Click the feature on the map";
         else if (quiz.kind === "conn")
           h.textContent = QOPT.typed
             ? "Type every line that joins the highlighted one · Enter submits"
@@ -3087,12 +3159,13 @@
             tg.dataset.id &&
             findable(tg.dataset.id)
           ) {
-            const id = tg.dataset.id;
+            const id = tg.dataset.id,
+              endIdx = tg.dataset.end;
             tapCand = {
               pointerId: ev.pointerId,
               x: ev.clientX,
               y: ev.clientY,
-              run: () => answerFind(id),
+              run: () => answerFind(id, endIdx),
             };
             startPan(ev);
             return;
@@ -3263,10 +3336,12 @@
         }
         const ht = hitTarget(ev);
         const id = (ht.dataset && ht.dataset.id) || null;
+        const endIdx = id && ht.dataset.end !== undefined ? ht.dataset.end : null;
         svg.style.cursor = cursorFor(ht);
         let dirty = false;
-        if (id !== hover) {
+        if (id !== hover || endIdx !== hoverEnd) {
           hover = id;
+          hoverEnd = endIdx;
           if (hoverOK() || hover === null) dirty = true;
         }
         if (mode === "draw" && tool !== "select") {
@@ -3285,7 +3360,7 @@
       svg.addEventListener("pointerleave", () => {
         if (drag || panning) return;
         const had = hover || (cursor && mode === "draw" && tool !== "select");
-        hover = null;
+        hover = hoverEnd = null;
         if (!kb) cursor = null;
         if (had) render();
       });
@@ -3956,7 +4031,7 @@
         for (const c of shuffle(cand)) if (set.size < 4) set.add(c);
         return shuffle([...set]);
       }
-      function nameQuizTarget(key) {
+      function quizFeatureTarget(key) {
         const sep = key.lastIndexOf("|");
         if (sep > 0) {
           const f = byId(key.slice(0, sep)),
@@ -4020,12 +4095,11 @@
           return Object.keys(QKINDS)
             .filter((k) => k !== "mixed")
             .flatMap((k) => poolFor(k).map((key) => ({ kind: k, key })));
-        if (kind === "name")
+        if (kind === "name" || kind === "find")
           return quizPool().flatMap((f) => {
             const ends = f.type === "runway" ? runwayEnds(f) : null;
             return ends ? ends.map((_, i) => `${f.id}|${i}`) : [f.id];
           });
-        if (kind === "find") return quizPool().map((f) => f.id);
         if (kind === "dims")
           return S.features
             .filter(
@@ -4058,8 +4132,14 @@
           quiz.kind === "conn"
         )
           highlight(f, "#4cc9f0", !quiz.answered, false, !quiz.answered);
-        if (quiz.kind === "name" && quiz.nameEnd) {
-          const e = quiz.nameEnd,
+        const end =
+          quiz.kind === "name"
+            ? quiz.nameEnd
+            : quiz.kind === "find" && quiz.answered
+              ? quiz.findEnd
+              : null;
+        if (end) {
+          const e = end,
             cls = quiz.answered ? "" : "pulse";
           el(
             "circle",
@@ -4111,9 +4191,10 @@
             if (ok) highlight(byId(id), "#34d399", false);
             else if (picked) highlight(byId(id), "#fb7185", false);
           });
-        if (quiz.kind === "find" && quiz.reveal)
+        if (quiz.kind === "find" && quiz.reveal && !quiz.findEnd)
           highlight(f, quiz.reveal, false);
-        else if (quiz.reveal) highlight(f, quiz.reveal, false);
+        else if (quiz.kind !== "find" && quiz.reveal)
+          highlight(f, quiz.reveal, false);
       }
       function startQuiz() {
         const pool = poolFor(QOPT.kind);
@@ -4162,6 +4243,7 @@
           fbok: false,
           showIds: null,
           nameEnd: null,
+          findEnd: null,
           picked: null,
           checked: new Set(),
           focus: "first",
@@ -4169,18 +4251,22 @@
           opts: null,
         });
         {
-          const target = quiz.kind === "name" ? nameQuizTarget(key) : null;
+          const target =
+            quiz.kind === "name" || quiz.kind === "find"
+              ? quizFeatureTarget(key)
+              : null;
           const f = target ? target.feature : byId(key);
           if (!f) {
             quiz.total--;
             return nextQ();
           }
-          quiz.cur = key;
+          quiz.cur = f.id;
           if (quiz.kind === "name") {
-            quiz.cur = f.id;
             quiz.nameEnd = target.end;
             quiz.correct = target.end ? target.end.label : f.name;
             quiz.choices = nameChoices(target);
+          } else if (quiz.kind === "find") {
+            quiz.findEnd = target.end;
           } else if (quiz.kind === "dims") {
             quiz.correct = fmtDim(f.len, f.wid);
             quiz.choices = dimChoices(f);
@@ -4354,14 +4440,18 @@
         quiz.showIds = new Set([...r, ...c]);
         finishAnswer();
       }
-      function answerFind(id) {
+      function answerFind(id, endIdx) {
         const f = byId(quiz.cur),
-          ok = id === f.id,
+          ok = id === f.id && (!quiz.findEnd || endIdx === quiz.findEnd.idx),
           g = byId(id);
         record(ok);
-        quiz.fb = ok
-          ? "✓ Correct"
-          : `✗ That was “${(g && g.name) || "unnamed"}”. The correct one is highlighted.`;
+        if (ok) quiz.fb = "✓ Correct";
+        else if (quiz.findEnd) {
+          const ends = g && g.type === "runway" ? runwayEnds(g) : null,
+            clickedEnd = ends && ends[endIdx];
+          quiz.fb = `✗ That was runway end ${clickedEnd ? clickedEnd.label : "?"}. The correct end is runway ${quiz.findEnd.label}.`;
+        } else
+          quiz.fb = `✗ That was “${(g && g.name) || "unnamed"}”. The correct one is highlighted.`;
         quiz.reveal = ok ? "#34d399" : "#fb7185";
         // keep focus on the map (Enter still advances) so its focus ring doesn't vanish
         quiz.focus = null;
@@ -4370,9 +4460,10 @@
       const reviewLabel = (item) => {
         const kind = typeof item === "object" ? item.kind : quiz.roundKind,
           key = typeof item === "object" ? item.key : item;
-        if (kind === "name") {
-          const target = nameQuizTarget(key);
-          if (target && target.end) return `RWY ${esc(target.end.label)}`;
+        if (kind === "name" || kind === "find") {
+          const target = quizFeatureTarget(key);
+          if (target && target.end)
+            return `${kind === "find" ? "RWY END" : "RWY"} ${esc(target.end.label)}`;
           return esc((target && target.feature.name) || "");
         }
         return esc((byId(key) || {}).name);
@@ -4421,7 +4512,10 @@
                 const kind =
                     typeof item === "object" ? item.kind : quiz.roundKind,
                   key = typeof item === "object" ? item.key : item;
-                const target = kind === "name" ? nameQuizTarget(key) : null;
+                const target =
+                  kind === "name" || kind === "find"
+                    ? quizFeatureTarget(key)
+                    : null;
                 const id = target ? target.feature.id : key,
                   f = byId(id);
                 return `<button type="button" class="item" data-miss="${i}">${!f ? "" : typeDot(f.type)}${reviewLabel(item)}</button>`;
@@ -4444,6 +4538,8 @@
             q += `<div class="qbig" tabindex="-1" id="qhead">What are the dimensions of runway <b>${esc(f.name)}</b>?</div>`;
           else if (quiz.kind === "conn")
             q += `<div class="qbig" tabindex="-1" id="qhead">Which lines connect to <b>${esc(f.name)}</b>?</div><div class="q" style="margin:-6px 0 10px">${QOPT.typed ? "Connected lines" : "Tick all that apply"}</div>`;
+          else if (quiz.kind === "find" && quiz.findEnd)
+            q += `<div class="q" style="margin-top:8px">Find this runway end on the map</div><div class="qbig" id="qhead" tabindex="-1">Runway ${esc(quiz.findEnd.label)}</div>`;
           else
             q += `<div class="q" style="margin-top:8px">Find the ${TYPES[f.type].label.toLowerCase()}</div><div class="qbig" id="qhead" tabindex="-1">${esc(f.name)}</div>`;
           if (quiz.kind === "conn" && QOPT.typed && !quiz.answered) {
@@ -4561,18 +4657,24 @@
               quiz.reveal = "#4cc9f0";
               quiz.fbok = true;
               quiz.nameEnd = null;
+              quiz.findEnd = null;
               quiz.key = key;
               quiz.done = false;
               quiz.fb = "Reviewing the correct answer";
               quiz.focus = "first";
               {
-                const target = kind === "name" ? nameQuizTarget(key) : null;
+                const target =
+                  kind === "name" || kind === "find"
+                    ? quizFeatureTarget(key)
+                    : null;
                 const f = target ? target.feature : byId(key);
                 quiz.cur = f ? f.id : key;
                 if (kind === "name" && target) {
                   quiz.nameEnd = target.end;
                   quiz.correct = target.end ? target.end.label : f.name;
                   quiz.choices = nameChoices(target);
+                } else if (kind === "find" && target) {
+                  quiz.findEnd = target.end;
                 } else if (kind === "dims" && f) {
                   quiz.correct = fmtDim(f.len, f.wid);
                   quiz.choices = dimChoices(f);
