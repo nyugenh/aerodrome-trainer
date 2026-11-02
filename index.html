@@ -4189,7 +4189,7 @@
             quiz.opts = o.opts;
             quiz.corr = o.right;
           }
-          centerOn(f);
+          if (quiz.kind !== "find") centerOn(f);
         }
         renderSide();
         render();
