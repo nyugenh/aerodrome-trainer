@@ -1934,6 +1934,15 @@
       }
 
       /* ---------- rendering ---------- */
+      const segDist = (p, a, b) => {
+        const dx = b.x - a.x,
+          dy = b.y - a.y,
+          l2 = dx * dx + dy * dy;
+        const t = l2
+          ? Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.y - a.y) * dy) / l2))
+          : 0;
+        return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+      };
       function drawFeature(f, g, k) {
         const T = TYPES[f.type],
           d = ptsStr(f.pts),
@@ -2117,21 +2126,59 @@
           f = quiz && byId(quiz.cur);
         return !!(g && f && g.type === f.type);
       };
-      // In a find quiz, look through anything stacked on top (e.g. gate points) for a feature of the right type.
+      // In study mode and find quizzes, pick the feature under (or nearest to) the pointer, within a generous
+      // screen-pixel reach. Nearest wins, so crowded areas stay precise and open areas are easy to hit.
+      const REACH = 28;
+      const ptInPoly = (p, pts) => {
+        let c = false;
+        for (let i = 0, j = pts.length - 1; i < pts.length; j = i++)
+          if (
+            pts[i].y > p.y !== pts[j].y > p.y &&
+            p.x <
+              ((pts[j].x - pts[i].x) * (p.y - pts[i].y)) /
+                (pts[j].y - pts[i].y) +
+                pts[i].x
+          )
+            c = !c;
+        return c;
+      };
+      const featDistTo = (f, p) => {
+        const T = TYPES[f.type],
+          n = f.pts.length;
+        if (T.pt) return dist(p, f.pts[0]);
+        if (!T.line && n > 2 && ptInPoly(p, f.pts)) return 0;
+        let m = Infinity;
+        for (let i = 0; i + 1 < n; i++)
+          m = Math.min(m, segDist(p, f.pts[i], f.pts[i + 1]));
+        if (!T.line && n > 2)
+          m = Math.min(m, segDist(p, f.pts[n - 1], f.pts[0]));
+        return m;
+      };
       const hitTarget = (ev) => {
-        if (mode === "quiz" && quiz && quiz.kind === "find" && !quiz.answered) {
-          const hit = document
-            .elementsFromPoint(ev.clientX, ev.clientY)
-            .find(
-              (e) =>
-                svg.contains(e) &&
-                e.dataset &&
-                e.dataset.id &&
-                findable(e.dataset.id),
-            );
-          if (hit) return hit;
+        const finding =
+          mode === "quiz" && quiz && quiz.kind === "find" && !quiz.answered;
+        if (!finding && mode !== "study") return ev.target;
+        const ok = (id) => (finding ? findable(id) : named(byId(id)));
+        const direct = document
+          .elementsFromPoint(ev.clientX, ev.clientY)
+          .find(
+            (e) =>
+              svg.contains(e) && e.dataset && e.dataset.id && ok(e.dataset.id),
+          );
+        if (direct) return direct;
+        const w = toWorld(ev),
+          reach = REACH / scale();
+        let best = null,
+          bd = reach;
+        for (const f of S.features) {
+          if (!ok(f.id)) continue;
+          const d = featDistTo(f, w);
+          if (d < bd) {
+            bd = d;
+            best = f;
+          }
         }
-        return ev.target;
+        return best ? { dataset: { id: best.id } } : ev.target;
       };
       const hoverOK = () =>
         hover &&
