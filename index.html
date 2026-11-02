@@ -4029,7 +4029,13 @@
         }
         cand.push(fmtDim(f.len, widths.find((w) => w !== f.wid) || f.wid + 15));
         for (const c of shuffle(cand)) if (set.size < 4) set.add(c);
-        return shuffle([...set]);
+        // dimensions have no alphabetical order, so list them by length then width
+        const num = (s) => (s.match(/\d[\d,]*/g) || []).map((n) => +n.replace(/,/g, ""));
+        return [...set].sort((x, y) => {
+          const a = num(x),
+            b = num(y);
+          return a[0] - b[0] || a[1] - b[1];
+        });
       }
       function quizFeatureTarget(key) {
         const sep = key.lastIndexOf("|");
@@ -4052,7 +4058,7 @@
             .flatMap((x) => runwayEnds(x) || [])
             .map((x) => x.label)
             .filter((x) => norm(x) !== norm(correct));
-          return shuffle([
+          return sortText([
             correct,
             ...[...new Set(shuffle(candidates))].slice(0, 3),
           ]);
@@ -4069,8 +4075,19 @@
             .filter((x) => same(x) && x.type !== f.type)
             .map((x) => x.name),
         );
-        return shuffle([correct, ...[...new Set([...a, ...b])].slice(0, 3)]);
+        return sortText([correct, ...[...new Set([...a, ...b])].slice(0, 3)]);
       }
+      const sortText = (a) =>
+        a.sort((x, y) =>
+          x.localeCompare(y, undefined, { numeric: true, sensitivity: "base" }),
+        );
+      const sortByName = (ids) =>
+        ids.sort((a, b) =>
+          byId(a).name.localeCompare(byId(b).name, undefined, {
+            numeric: true,
+            sensitivity: "base",
+          }),
+        );
       function connOptions(f) {
         const nb = neighbours(f).filter(named),
           nbSet = new Set(nb);
@@ -4085,7 +4102,7 @@
           Math.max(3, Math.min(4, 8 - right.length)),
         );
         return {
-          opts: shuffle([...right, ...wrong]).map((o) => o.id),
+          opts: sortByName([...right, ...wrong].map((o) => o.id)),
           right: new Set(right.map((o) => o.id)),
         };
       }
@@ -4435,7 +4452,7 @@
           ? "✓ Correct"
           : `✗ ${missed.length ? "Missed: " + missed.join(", ") + ". " : ""}${extra.length ? "Not connected: " + extra.join(", ") + "." : ""}`;
         quiz.checked = new Set(c);
-        quiz.opts = [...new Set([...quiz.opts, ...c])];
+        quiz.opts = sortByName([...new Set([...quiz.opts, ...c])]);
         record(ok);
         quiz.showIds = new Set([...r, ...c]);
         finishAnswer();
@@ -4543,7 +4560,7 @@
           else
             q += `<div class="q" style="margin-top:8px">Find the ${TYPES[f.type].label.toLowerCase()}</div><div class="qbig" id="qhead" tabindex="-1">${esc(f.name)}</div>`;
           if (quiz.kind === "conn" && QOPT.typed && !quiz.answered) {
-            q += `<label class="quiz-answer-label" for="typed">Type every connected line (${quiz.corr.size}), separated by commas</label><div class="quiz-answer"><input type="text" id="typed" placeholder="e.g. A, B" autocomplete="off"><button class="btn primary" id="tsubmit">Submit</button></div>`;
+            q += `<label class="quiz-answer-label" for="typed">Type every connected line, separated by commas</label><div class="quiz-answer"><input type="text" id="typed" placeholder="Type line names…" autocomplete="off"><button class="btn primary" id="tsubmit">Submit</button></div>`;
           } else if (quiz.kind === "conn") {
             q += `<div class="opts" role="group" aria-label="Lines">${quiz.opts
               .filter((id) => !(QOPT.typed && !quiz.corr.has(id)))
@@ -4565,8 +4582,8 @@
           } else if (choices && QOPT.typed && quiz.kind !== "find")
             q +=
               quiz.kind === "dims"
-                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" data-chars="[0-9]" maxlength="${String(f.len).length}" placeholder="Length" aria-label="Length in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" data-chars="[0-9]" maxlength="${String(f.wid).length}" placeholder="Width" aria-label="Width in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedB || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
-                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" data-chars="${esc(charClass(String(quiz.correct)))}" maxlength="${String(quiz.correct).trim().length}" placeholder="Type a name…" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
+                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" data-chars="[0-9]" placeholder="Length" aria-label="Length in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" data-chars="[0-9]" placeholder="Width" aria-label="Width in metres" autocomplete="off" value="${esc(quiz.answered ? quiz.typedB || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
+                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" data-chars="${esc(charClass(String(quiz.correct)))}" placeholder="Type a name…" autocomplete="off" value="${esc(quiz.answered ? quiz.typedA || "" : "")}" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
           else if (choices)
             q += `<div class="choices" role="group" aria-label="Answers">${quiz.choices
               .map((c, i) => {
