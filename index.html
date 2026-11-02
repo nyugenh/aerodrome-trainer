@@ -1151,7 +1151,7 @@
       }
     </style>
   </head>
-  <body>
+  <body class="viewer">
     <a class="skip" href="#side">Skip to side panel</a>
     <header>
       <div class="hdr-left">
@@ -1216,16 +1216,16 @@
         </button>
       </div>
       <div class="tabs" id="tabs" role="tablist" aria-label="Mode">
+        <button role="tab" data-m="draw" aria-selected="false" tabindex="-1">
+          Draw
+        </button>
         <button
           role="tab"
-          data-m="draw"
+          data-m="study"
           aria-selected="true"
           tabindex="0"
           class="on"
         >
-          Draw
-        </button>
-        <button role="tab" data-m="study" aria-selected="false" tabindex="-1">
           Study
         </button>
         <button role="tab" data-m="quiz" aria-selected="false" tabindex="-1">
@@ -1358,7 +1358,7 @@
       };
 
       let S = { features: [] };
-      let mode = "draw",
+      let mode = "study",
         tool = "select";
       let gridSnap = localStorage.getItem("aerodrome-grid") !== "0";
       let sel = null,
@@ -1482,8 +1482,8 @@
         EDIT =
           EDIT &&
           ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+        setMode("study");
         document.body.classList.toggle("viewer", !EDIT);
-        if (!EDIT) setMode("study");
         try {
           await fetchNames();
         } catch (e) {
