@@ -3074,18 +3074,14 @@
             tg.dataset.id &&
             findable(tg.dataset.id)
           ) {
-            if (ev.pointerType === "touch") {
-              const id = tg.dataset.id;
-              tapCand = {
-                pointerId: ev.pointerId,
-                x: ev.clientX,
-                y: ev.clientY,
-                run: () => answerFind(id),
-              };
-              startPan(ev);
-              return;
-            }
-            answerFind(tg.dataset.id);
+            const id = tg.dataset.id;
+            tapCand = {
+              pointerId: ev.pointerId,
+              x: ev.clientX,
+              y: ev.clientY,
+              run: () => answerFind(id),
+            };
+            startPan(ev);
             return;
           }
           startPan(ev);
@@ -3093,18 +3089,14 @@
         }
         if (mode === "study") {
           if (tg.dataset.id && named(byId(tg.dataset.id))) {
-            if (ev.pointerType === "touch") {
-              const id = tg.dataset.id;
-              tapCand = {
-                pointerId: ev.pointerId,
-                x: ev.clientX,
-                y: ev.clientY,
-                run: () => selectFeature(id),
-              };
-              startPan(ev);
-              return;
-            }
-            selectFeature(tg.dataset.id);
+            const id = tg.dataset.id;
+            tapCand = {
+              pointerId: ev.pointerId,
+              x: ev.clientX,
+              y: ev.clientY,
+              run: () => selectFeature(id),
+            };
+            startPan(ev);
             return;
           }
           startPan(ev);
