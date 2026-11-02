@@ -1,0 +1,2055 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Aerodrome Trainer</title>
+    <style>
+      :root {
+        --bg: #0b1016;
+        --panel: #121923;
+        --panel2: #18212d;
+        --line: #243040;
+        --fg: #e6edf5;
+        --mut: #8a9bb0;
+        --acc: #4cc9f0;
+        --acc2: #7c5cff;
+        --ok: #34d399;
+        --bad: #fb7185;
+        --warn: #fbbf24;
+      }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body { height: 100dvh; }
+      body {
+        background: var(--bg);
+        color: var(--fg);
+        font: 14px/1.4 Inter, system-ui, Segoe UI, Roboto, sans-serif;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      button, input, select { font: inherit; color: inherit; }
+      :focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; }
+      svg#map:focus-visible { outline-offset: -3px; }
+      .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .skip { position: absolute; left: 8px; top: -50px; z-index: 100; background: var(--acc); color: #04121a; padding: 8px 14px; border-radius: 8px; font-weight: 700; }
+      .skip:focus { top: 8px; }
+      header {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: center;
+        gap: 16px;
+        padding: 10px 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+      .hdr-left { display: flex; align-items: center; gap: 8px; min-width: 0; }
+      .hdr-left .btn, .hdr-left select { flex: none; }
+      .hdr-right { display: flex; justify-content: flex-end; min-width: 120px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 0.3px; margin-right: 8px; white-space: nowrap; }
+      .brand i { width: 26px; height: 26px; border-radius: 8px; background: linear-gradient(135deg, var(--acc), var(--acc2)); display: grid; place-items: center; font-style: normal; color: #04121a; }
+      .tabs { justify-self: center; display: flex; background: var(--bg); border: 1px solid var(--line); border-radius: 12px; padding: 3px; }
+      .tabs button { border: 0; background: none; padding: 7px 18px; border-radius: 9px; cursor: pointer; color: var(--mut); font-weight: 600; }
+      .tabs button:hover:not(.on) { color: var(--fg); background: var(--panel2); }
+      .tabs button.on:hover { filter: brightness(1.1); }
+      .tabs button.on { background: linear-gradient(135deg, var(--acc), var(--acc2)); color: #05111a; }
+      .pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 26px; padding: 0 10px; border: 1px solid var(--line); border-radius: 999px; background: var(--bg); font-size: 12.5px; font-weight: 600; color: var(--c, var(--mut)); white-space: nowrap; }
+      .pill:empty { display: none; }
+      .pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--c, var(--mut)); box-shadow: 0 0 8px var(--c, transparent); }
+      .pill b { font-weight: 600; }
+      .btn, select { height: 34px; }
+      .btn { background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 0 12px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; transition: 0.15s; color: var(--fg); }
+      .btn:hover:not(:disabled) { border-color: var(--acc); background: #1d2836; }
+      .btn.icon { width: 34px; padding: 0; color: var(--mut); }
+      .btn.icon:hover:not(:disabled) { color: var(--acc); }
+      .btn.primary { background: linear-gradient(135deg, var(--acc), var(--acc2)); color: #05111a; border: 0; font-weight: 700; padding: 0 16px; }
+      .btn.primary:hover:not(:disabled) { background: linear-gradient(135deg, var(--acc), var(--acc2)); filter: brightness(1.15); }
+      .btn.solid:hover:not(:disabled) { background: var(--bad); filter: brightness(1.12); }
+      .btn.danger { color: var(--mut); }
+      .btn.danger:hover:not(:disabled) { color: var(--bad); border-color: var(--bad); background: #2a1620; }
+      .btn.solid { background: var(--bad); border-color: var(--bad); color: #fff; padding: 0 16px; }
+      .btn:disabled { opacity: 0.55; cursor: not-allowed; filter: grayscale(1); }
+      .btn.primary:disabled { background: var(--panel2); color: var(--mut); border: 1px solid var(--line); }
+      .ic { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+      main { flex: 1; display: flex; min-height: 0; }
+      #tools { width: 72px; background: var(--panel); border-right: 1px solid var(--line); display: flex; flex-direction: column; gap: 6px; padding: 10px 8px; }
+      #tools button { position: relative; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border-radius: 10px; border: 1px solid transparent; background: none; cursor: pointer; color: var(--mut); font-size: 10.5px; }
+      #tools button svg { width: 24px; height: 24px; }
+      #tools button:hover:not(.on) { background: var(--panel2); color: var(--fg); border-color: var(--line); }
+      #tools button.on { background: var(--panel2); border-color: var(--acc); color: var(--acc); }
+      #tools kbd { position: absolute; top: 3px; right: 4px; font: 600 9px/1 system-ui; color: var(--mut); opacity: 0.8; }
+      #tools hr { width: 100%; border: 0; border-top: 1px solid var(--line); margin: 4px 0; }
+      #stage { flex: 1; position: relative; min-width: 0; background: radial-gradient(circle at 50% 40%, #101a26, #0a0f15); }
+      svg#map { width: 100%; height: 100%; display: block; touch-action: none; }
+      #hint { position: absolute; left: 50%; bottom: 14px; transform: translateX(-50%); max-width: calc(100% - 100px); background: #0d141cdd; backdrop-filter: blur(6px); border: 1px solid var(--line); padding: 6px 14px; border-radius: 999px; color: var(--mut); font-size: 12.5px; pointer-events: none; text-align: center; }
+      #hint:empty { display: none; }
+      #draftbar { position: absolute; left: 50%; top: 12px; transform: translateX(-50%); display: flex; flex-wrap: nowrap; gap: 6px; align-items: center; background: #0d141cf2; backdrop-filter: blur(6px); border: 1px solid #4cc9f066; border-radius: 14px; padding: 5px 5px 5px 12px; box-shadow: 0 8px 28px #0009; white-space: nowrap; }
+      #draftbar .btn { flex: none; height: 30px; padding: 0 10px; font-size: 12.5px; gap: 7px; }
+      #draftbar .btn.primary { padding: 0 12px; }
+      #draftbar .btn kbd.k { background: #0003; border-color: #ffffff22; color: inherit; opacity: 0.8; }
+      #draftbar .btn.primary kbd.k { border-color: #0004; color: #05111a; }
+      #draftbar .cnt { padding: 0 10px 0 0; margin-right: 4px; border-right: 1px solid var(--line); color: var(--fg); font-size: 12.5px; font-weight: 600; white-space: nowrap; line-height: 30px; }
+      .tagbg { fill: #0b1219ee; stroke: #4cc9f055; }
+      .tagtx { fill: #e6edf5; font-weight: 600; }
+      kbd.k { font: 600 10.5px/1 system-ui; padding: 2px 5px; border-radius: 5px; border: 1px solid var(--line); background: var(--bg); color: var(--mut); }
+      #zoomctl { position: absolute; right: 12px; top: 12px; display: flex; flex-direction: column; gap: 6px; }
+      #zoomctl .btn { width: 36px; height: 36px; padding: 0; font-size: 18px; }
+      #zoomctl .btn.toggle.on { border-color: var(--acc); color: var(--acc); }
+      aside { width: 320px; background: var(--panel); border-left: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+      aside:focus { outline: none; }
+      #side { overflow-y: auto; overscroll-behavior: contain; }
+      .sec { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+      .sec h3 { margin: 0 0 10px; font-size: 11px; text-transform: uppercase; letter-spacing: 1.2px; color: var(--mut); }
+      .lab { display: block; color: var(--mut); font-size: 12px; margin-bottom: 4px; }
+      .row { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+      .row label { color: var(--mut); width: 70px; flex: none; }
+      .row .u { color: var(--mut); }
+      input[type='text'], input[type='number'], input[type='search'] { width: 100%; background: var(--bg); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; outline: none; }
+      input[type='text']:focus, input[type='number']:focus, input[type='search']:focus { border-color: var(--acc); box-shadow: 0 0 0 2px #4cc9f044; }
+      .list { flex: 1; overflow: auto; padding: 8px; }
+      .item { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 10px; border-radius: 9px; cursor: pointer; border: 0; background: none; text-align: left; }
+      .item:hover { background: var(--panel2); }
+      .grp { margin-bottom: 4px; }
+      .ghead { display: flex; align-items: center; gap: 8px; width: 100%; position: sticky; top: -8px; z-index: 1; padding: 7px 8px; border: 0; border-radius: 8px; background: var(--panel); color: var(--mut); cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; text-align: left; }
+      .ghead:hover { color: var(--fg); background: var(--panel2); }
+      .ghead .car { width: 10px; }
+      .ghead .cnt { margin-left: auto; background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 1px 7px; font-size: 10.5px; }
+      .grp .item { padding-left: 30px; }
+      .lfilter { padding: 0 12px 6px; }
+      .lfilter input { padding: 6px 10px; font-size: 13px; }
+      .item.sel { background: var(--panel2); outline: 1px solid var(--acc); }
+      .dot { width: 12px; height: 12px; border-radius: 4px; flex: none; }
+      .item small { margin-left: auto; color: var(--mut); }
+      .empty { color: var(--mut); text-align: center; padding: 24px 12px; }
+      .seg { display: flex; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 2px; }
+      .seg button { flex: 1; border: 0; background: none; padding: 6px; border-radius: 8px; cursor: pointer; color: var(--mut); font-size: 12.5px; }
+      .seg button:hover:not(.on) { color: var(--fg); background: var(--panel2); }
+      .seg button.on { background: var(--panel2); color: var(--acc); }
+      .check { display: flex; align-items: center; gap: 8px; color: var(--mut); cursor: pointer; margin: 6px 0; }
+      .q { font-size: 12px; color: var(--mut); text-transform: uppercase; letter-spacing: 1px; }
+      .qbig { font-size: 20px; font-weight: 700; margin: 6px 0 12px; outline: none; }
+      .qbig b { color: var(--acc); }
+      .quiz-toggle { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel2); cursor: pointer; }
+      .quiz-toggle input { width: 18px; height: 18px; accent-color: var(--acc); flex: none; }
+      .quiz-toggle span { display: grid; gap: 2px; }
+      .quiz-toggle small { color: var(--mut); font-size: 12px; }
+      .name-err { color: var(--bad); font-size: 12px; margin: -2px 0 6px; }
+      .name-err:empty { display: none; }
+      #nameInput[aria-invalid="true"] { border-color: var(--bad); }
+      .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+      .chip { position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--panel2); color: var(--mut); font-size: 13px; font-weight: 600; cursor: pointer; user-select: none; }
+      .chip input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+      .chip:hover { border-color: var(--acc); }
+      .chip:has(input:checked) { background: rgba(76, 201, 240, 0.15); border-color: var(--acc); color: var(--text, #e6edf3); }
+      .chip:has(input:checked)::before { content: '✓'; color: var(--acc); font-weight: 800; }
+      .chip:has(input:focus-visible) { outline: 2px solid var(--acc); outline-offset: 2px; }
+      .chips.inline { flex-wrap: nowrap; gap: 3px; }
+      .chips.inline .chip { flex: 1 1 auto; justify-content: center; padding: 5px 7px; gap: 3px; font-size: 12px; white-space: nowrap; }
+      .quiz-answer-label { display: block; margin: 12px 0 5px; color: var(--mut); font-size: 12px; }
+      .quiz-answer { display: flex; gap: 8px; align-items: stretch; }
+      .quiz-answer input { min-width: 0; }
+      .dim-x { align-self: center; color: var(--mut); }
+      .quiz-answer .btn { flex: none; }
+      .choices { display: grid; gap: 8px; }
+      .choices button, .opts label { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel2); cursor: pointer; text-align: left; font-weight: 600; }
+      .choices button:hover:not(:disabled), .opts label:hover { border-color: var(--acc); background: #1d2836; }
+      .choices button.ok, .opts label.ok { background: #10382c; border-color: var(--ok); }
+      .choices button.bad, .opts label.bad { background: #3d1820; border-color: var(--bad); }
+      .choices button:disabled { cursor: default; }
+      .opts { display: grid; gap: 8px; }
+      .opts input { width: 16px; height: 16px; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chip { border: 1px solid var(--line); background: var(--panel2); border-radius: 999px; padding: 3px 10px; cursor: pointer; font-size: 12.5px; }
+      .chip:hover { border-color: var(--acc); }
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
+      .stats div { background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 4px; }
+      .stats b { display: block; font-size: 20px; }
+      .stats span { color: var(--mut); font-size: 11px; }
+      .fb { min-height: 22px; margin-top: 10px; font-weight: 600; }
+      .fb.ok { color: var(--ok); }
+      .fb.bad { color: var(--bad); }
+      .bar { height: 6px; background: var(--bg); border-radius: 6px; overflow: hidden; margin-bottom: 12px; }
+      .bar i { display: block; height: 100%; background: linear-gradient(90deg, var(--acc), var(--acc2)); transition: 0.3s; }
+      .hidden { display: none !important; }
+      body.viewer .edit-only, body.viewer [data-m='draw'], body.viewer #undo, body.viewer #redo, body.viewer #tools, body.viewer #zgrid, body.viewer #draftbar, #undo, #redo { display: none !important; }
+      select { background: var(--panel2); border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px; min-width: 130px; }
+      .legend { display: flex; gap: 12px; flex-wrap: wrap; color: var(--mut); font-size: 12px; }
+      .legend span { display: flex; align-items: center; gap: 5px; }
+      .kb { display: inline-grid; place-items: center; min-width: 20px; height: 20px; border-radius: 5px; background: var(--bg); border: 1px solid var(--line); color: var(--mut); font-size: 11px; flex: none; }
+      .muted { color: var(--mut); }
+      .modal { position: fixed; inset: 0; background: #050a10b3; backdrop-filter: blur(3px); display: grid; place-items: center; z-index: 50; }
+      .modal form { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; width: min(420px, 92vw); max-height: 90vh; overflow: auto; box-shadow: 0 20px 60px #000a; }
+      .modal h4 { margin: 0 0 6px; font-size: 16px; }
+      .modal p { margin: 0 0 12px; color: var(--mut); }
+      .modal p:empty, .modal .dbody:empty { display: none; }
+      .modal .acts { display: flex; justify-content: flex-end; gap: 8px; margin-top: 14px; }
+      .modal table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
+      .modal td { padding: 3px 0; vertical-align: top; }
+      .modal td:first-child { white-space: nowrap; padding-right: 14px; width: 1%; }
+      .modal h5 { margin: 12px 0 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: var(--mut); }
+      body.viewer .hdr-right { display: none; }
+      body.viewer .tabs { justify-self: end; }
+      @media (max-width: 920px) {
+        body:not(.viewer) header { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 8px; }
+        body:not(.viewer) .hdr-left { grid-column: 1 / -1; flex-wrap: wrap; overflow: visible; }
+        body:not(.viewer) .tabs { grid-column: 1; grid-row: 2; justify-self: start; }
+        body:not(.viewer) .hdr-right { grid-column: 2; grid-row: 2; min-width: 0; }
+        #mapSel { min-width: 0; max-width: 100%; }
+      }
+      @media (max-width: 520px) {
+        body.viewer header { grid-template-columns: minmax(0, 1fr) auto; gap: 8px; padding: 8px; }
+        body.viewer .hdr-left { grid-column: 1 / -1; flex-wrap: wrap; overflow: visible; }
+        body.viewer .tabs { grid-column: 1; grid-row: 2; justify-self: end; }
+        body.viewer .hdr-right { grid-column: 2; grid-row: 2; min-width: 0; }
+      }
+      @media (max-width: 800px) {
+        main { flex-direction: column; overflow: hidden; }
+        #tools { width: 100%; min-height: 62px; flex: none; flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--line); padding: 5px 8px; }
+        #tools button { min-width: 54px; min-height: 48px; }
+        #tools hr { width: 0; height: 42px; border-top: 0; border-left: 1px solid var(--line); margin: 3px 4px; }
+        #stage { flex: 1 1 0; min-height: 180px; }
+        #hint { display: none; }
+        aside { position: relative; right: auto; top: auto; bottom: auto; z-index: auto; width: 100%; flex: 0 0 42%; min-height: 0; border-left: 0; border-top: 1px solid var(--line); overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .list { flex: none; overflow: visible; }
+        .ghead { top: 0; }
+        .btn, select { min-height: 40px; }
+        #draftbar { max-width: calc(100% - 16px); overflow-x: auto; }
+      }
+      @media (max-width: 480px) {
+        .brand { font-size: 13px; margin-right: 0; }
+        .tabs button { padding: 7px 12px; }
+        #status { width: auto; max-width: 124px; }
+        .sec { padding: 12px; }
+        .quiz-answer { flex-direction: column; }
+        .quiz-answer .btn { width: 100%; }
+      }
+      @media (prefers-reduced-motion: reduce) { .pulse { animation: none !important; } }
+      @keyframes pulse { 0%, 100% { opacity: 0.9; } 50% { opacity: 0.25; } }
+      .pulse { animation: pulse 1s infinite; }
+      .lbl { font-weight: 700; paint-order: stroke; stroke: #05090e; stroke-width: 4px; stroke-linejoin: round; fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; user-select: none; }
+      .tag { font-weight: 600; paint-order: stroke; stroke: #05090e; stroke-width: 3px; stroke-linejoin: round; fill: #d9fbe9; pointer-events: none; user-select: none; }
+    </style>
+  </head>
+  <body>
+    <a class="skip" href="#side">Skip to side panel</a>
+    <header>
+      <div class="hdr-left">
+        <div class="brand"><i aria-hidden="true">✈</i> Aerodrome Trainer</div>
+        <select id="mapSel" aria-label="Aerodrome"></select>
+        <button class="btn edit-only" id="newMap" title="New aerodrome">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14" /></svg>New
+        </button>
+        <button class="btn icon edit-only" id="renameMap" title="Rename this aerodrome" aria-label="Rename this aerodrome">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20h4L19 9a2.1 2.1 0 0 0-4-4L4 16v4zM13.5 6.5l4 4" /></svg>
+        </button>
+        <button class="btn icon edit-only danger" id="delMap" title="Delete this aerodrome" aria-label="Delete this aerodrome">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9 7V4.5h6V7M6.5 7l.8 12a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4l.8-12M10 11v6M14 11v6" /></svg>
+        </button>
+        <button class="btn icon" id="undo" title="Undo (Ctrl+Z)" aria-label="Undo">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 14 4 9l5-5" /><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11" /></svg>
+        </button>
+        <button class="btn icon" id="redo" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m15 14 5-5-5-5" /><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13" /></svg>
+        </button>
+        <button class="btn icon" id="help" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">?</button>
+      </div>
+      <div class="tabs" id="tabs" role="tablist" aria-label="Mode">
+        <button role="tab" data-m="draw" aria-selected="true" tabindex="0" class="on">Draw</button>
+        <button role="tab" data-m="study" aria-selected="false" tabindex="-1">Study</button>
+        <button role="tab" data-m="quiz" aria-selected="false" tabindex="-1">Quiz</button>
+      </div>
+      <div class="hdr-right"><span id="status"></span></div>
+    </header>
+    <main>
+      <div id="tools" role="toolbar" aria-label="Drawing tools" aria-orientation="vertical"></div>
+      <div id="stage">
+        <svg id="map" tabindex="0" role="application" aria-label="Aerodrome map. Press question mark for keyboard shortcuts."></svg>
+        <div id="draftbar" class="hidden" role="group" aria-label="Current drawing">
+          <span class="cnt" id="dcount"></span>
+          <button class="btn" id="dundo" title="Remove the last point (Backspace)">↶ Undo point <kbd class="k">⌫</kbd></button>
+          <button class="btn primary" id="dfinish" title="Finish shape (Enter)">✓ Finish <kbd class="k">⏎</kbd></button>
+          <button class="btn danger" id="dcancel" title="Cancel drawing (Esc)">✕ Cancel <kbd class="k">Esc</kbd></button>
+        </div>
+        <div id="zoomctl">
+          <button class="btn" id="zin" title="Zoom in (+)" aria-label="Zoom in">+</button>
+          <button class="btn" id="zout" title="Zoom out (−)" aria-label="Zoom out">−</button>
+          <button class="btn" id="zfit" title="Fit all (0)" aria-label="Fit all">⤢</button>
+          <button class="btn toggle" id="zgrid" title="Snap to grid (G)" aria-pressed="true" style="font-size: 12px">Grid</button>
+        </div>
+        <div id="hint"></div>
+      </div>
+      <aside id="side" tabindex="-1" aria-label="Details panel"></aside>
+    </main>
+    <div id="live" class="sr" aria-live="polite" role="status"></div>
+
+    <script>
+      'use strict';
+      const NS = 'http://www.w3.org/2000/svg';
+      const TYPES = {
+        runway: { label: 'Runway', color: '#3b4452', line: true, w: 34 },
+        taxiway: { label: 'Taxiway', color: '#d8b84a', line: true, w: 14 },
+        apron: { label: 'Apron', color: '#5b6b82', line: false },
+        building: { label: 'Building', color: '#7c5cff', line: false },
+        point: { label: 'Point', color: '#4cc9f0', line: false, pt: true },
+      };
+      const KEYS = { select: 'V', runway: 'R', taxiway: 'T', apron: 'A', building: 'B', point: 'P' };
+      const ICONS = {
+        select: '<path d="M5 3l14 8-6 2-3 6z" fill="currentColor"/>',
+        runway: '<rect x="3" y="9" width="18" height="6" rx="1" fill="currentColor" opacity=".35"/><path d="M5 12h14" stroke="currentColor" stroke-width="2" stroke-dasharray="3 2"/>',
+        taxiway: '<path d="M4 18l6-8 4 4 6-8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>',
+        apron: '<path d="M4 8l8-4 8 5-2 10-11 1z" fill="currentColor" opacity=".4" stroke="currentColor" stroke-width="1.5"/>',
+        building: '<rect x="5" y="6" width="14" height="12" rx="2" fill="currentColor" opacity=".4" stroke="currentColor" stroke-width="1.5"/>',
+        point: '<circle cx="12" cy="12" r="5" fill="currentColor"/><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+      };
+      const HINTS = {
+        select: 'Click a shape to select · drag a white dot to reshape · drag a small ○ on an edge to add a bend · arrows nudge · Del removes',
+        runway: 'Click to add points · green rings = join an existing line · Backspace undoes the last point · Enter finishes · Alt = no snap',
+        taxiway: 'Click to add points · green rings = join an existing line · Backspace undoes the last point · Enter finishes · Alt = no snap',
+        apron: 'Click the corners · click the first point to close · Backspace undoes the last point · Enter finishes',
+        building: 'Click the corners · click the first point to close · Backspace undoes the last point · Enter finishes',
+        point: 'Click to drop a marker (gate, tower, hold point…)',
+      };
+      const QKINDS = {
+        mixed: 'Mixed (all types)',
+        name: 'What is this?',
+        find: 'Find it on the map',
+        dims: 'Runway dimensions',
+        conn: 'What connects to what?',
+      };
+
+      let S = { features: [] };
+      let mode = 'draw',
+        tool = 'select';
+      let gridSnap = localStorage.getItem('aerodrome-grid') !== '0';
+      let sel = null,
+        selV = null,
+        draft = null,
+        cursor = null,
+        kb = null,
+        hover = null,
+        labelsOn = true;
+      let vb = { x: 0, y: 0, w: 1600, h: 1000 };
+      const undoStack = [],
+        redoStack = [];
+      let quiz = null;
+      let drag = null,
+        panning = null,
+        spaceDown = false,
+        lastVtx = null;
+
+      const $ = (id) => document.getElementById(id);
+      const svg = $('map');
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      const byId = (id) => S.features.find((f) => f.id === id);
+      const isLine = (f) => TYPES[f.type].line;
+      const named = (f) => f.type !== 'apron' && !!(f.name && f.name.trim());
+      const esc = (s) => String(s == null ? '' : s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+      const el = (n, a = {}, p) => {
+        const e = document.createElementNS(NS, n);
+        for (const k in a) e.setAttribute(k, a[k]);
+        if (p) p.appendChild(e);
+        return e;
+      };
+      let liveT = null;
+      function announce(t) {
+        clearTimeout(liveT);
+        $('live').textContent = '';
+        liveT = setTimeout(() => ($('live').textContent = t), 60);
+      }
+
+      /* ---------- maps: stored as maps/<name>.json ---------- */
+      let EDIT = false,
+        curMap = null,
+        mapNames = [],
+        saveTimer = null;
+      const LAST = 'aerodrome-last-map';
+      function setStatus(t, color) {
+        const s = $('status');
+        s.className = 'pill';
+        s.style.setProperty('--c', color || 'var(--mut)');
+        s.innerHTML = '<i></i><b></b>';
+        s.lastChild.textContent = t
+          .replace(/^[✓✗]\s*/, '')
+          .replace(/^Auto-saves to .*/, 'Auto-save on')
+          .replace(/^Saved to .*/, 'Saved')
+          .replace(/^Save failed.*/, 'Save failed');
+        s.title = t.replace(/^[✓✗]\s*/, '');
+      }
+      function save() {
+        if (!EDIT || !curMap) return;
+        clearTimeout(saveTimer);
+        setStatus('Saving…', '#fbbf24');
+        saveTimer = setTimeout(async () => {
+          try {
+            const r = await fetch('/api/maps/' + encodeURIComponent(curMap), { method: 'PUT', body: JSON.stringify(S) });
+            if (!r.ok) throw 0;
+            setStatus('✓ Saved to maps/' + curMap + '.json', '#34d399');
+          } catch (e) {
+            setStatus('✗ Save failed – is server.py running?', '#fb7185');
+          }
+        }, 300);
+      }
+      async function fetchNames() {
+        const r = await fetch(EDIT ? '/api/maps' : 'maps/index.json', { cache: 'no-store' });
+        mapNames = r.ok ? await r.json() : [];
+      }
+      function fillMapSelect() {
+        const s = $('mapSel');
+        s.innerHTML = mapNames.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join('') || '<option value="">(no maps)</option>';
+        if (curMap) s.value = curMap;
+      }
+      async function openMap(name) {
+        clearTimeout(saveTimer);
+        curMap = name;
+        sel = selV = null;
+        quiz = null;
+        draft = null;
+        undoStack.length = redoStack.length = 0;
+        try {
+          const r = await fetch('maps/' + encodeURIComponent(name) + '.json', { cache: 'no-store' });
+          const d = r.ok ? await r.json() : null;
+          S = d && Array.isArray(d.features) ? d : { features: [] };
+        } catch (e) {
+          S = { features: [] };
+        }
+        localStorage.setItem(LAST, name);
+        fillMapSelect();
+        fit();
+        renderSide();
+        if (EDIT) setStatus('✓ Auto-saves to maps/' + name + '.json', '#34d399');
+      }
+      async function initMaps() {
+        try {
+          EDIT = (await fetch('/api/ping', { cache: 'no-store' })).ok;
+        } catch (e) {
+          EDIT = false;
+        }
+        EDIT = EDIT && ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
+        document.body.classList.toggle('viewer', !EDIT);
+        if (!EDIT) setMode('study');
+        try {
+          await fetchNames();
+        } catch (e) {
+          mapNames = [];
+        }
+        const last = localStorage.getItem(LAST);
+        if (mapNames.length) await openMap(mapNames.includes(last) ? last : mapNames[0]);
+        else {
+          fillMapSelect();
+          if (EDIT) await newMap('My Airport');
+          else setStatus('No maps published yet');
+        }
+        renderTools();
+        renderSide();
+        updateHint();
+      }
+      function dialog({ title, text, input, ok = 'OK', danger, html, cancel = true }) {
+        return new Promise((res) => {
+          const prev = document.activeElement;
+          const o = document.createElement('div');
+          o.className = 'modal';
+          o.innerHTML = `<form role="dialog" aria-modal="true" aria-labelledby="dlgT"><h4 id="dlgT"></h4><p></p><div class="dbody"></div>${input !== undefined ? '<input type="text" maxlength="60" autocomplete="off" aria-labelledby="dlgT">' : ''}<div class="acts">${cancel ? '<button type="button" class="btn" data-x>Cancel</button>' : ''}<button type="submit" class="btn ${danger ? 'danger solid' : 'primary'}"></button></div></form>`;
+          o.querySelector('h4').textContent = title;
+          o.querySelector('p').textContent = text || '';
+          if (html) o.querySelector('.dbody').innerHTML = html;
+          o.querySelector('[type=submit]').textContent = ok;
+          const inp = o.querySelector('input');
+          if (inp) inp.value = input;
+          const close = (v) => {
+            o.remove();
+            if (prev && prev.focus) prev.focus();
+            res(v);
+          };
+          const x = o.querySelector('[data-x]');
+          if (x) x.onclick = () => close(null);
+          o.onmousedown = (e) => { if (e.target === o) close(cancel ? null : true); };
+          o.onkeydown = (e) => {
+            if (e.key === 'Escape') close(cancel ? null : true);
+            if (e.key === 'Tab') {
+              const f = [...o.querySelectorAll('input,button')].filter((n) => !n.disabled);
+              const first = f[0], last = f[f.length - 1];
+              if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+              else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+            }
+            e.stopPropagation();
+          };
+          o.querySelector('form').onsubmit = (e) => {
+            e.preventDefault();
+            close(inp ? inp.value : true);
+          };
+          document.body.appendChild(o);
+          (inp || o.querySelector('[type=submit]')).focus();
+          if (inp) inp.select();
+        });
+      }
+      const cleanName = (n) => (n || '').trim().replace(/[^\w \-.]/g, '').slice(0, 60);
+      async function newMap(preset) {
+        let n = preset;
+        for (;;) {
+          if (!preset) {
+            n = await dialog({ title: 'New aerodrome', text: 'Name it, e.g. YSSY', input: '', ok: 'Create' });
+            if (n === null) return;
+          }
+          n = cleanName(n);
+          if (!n) { if (preset) return; continue; }
+          if (!mapNames.includes(n)) break;
+          if (preset) return;
+          await dialog({ title: 'Name already used', text: `"${n}" already exists.`, cancel: false });
+        }
+        const r = await fetch('/api/maps/' + encodeURIComponent(n), { method: 'PUT', body: JSON.stringify({ features: [] }) });
+        if (!r.ok) { await dialog({ title: 'Error', text: 'Could not create map.', cancel: false }); return; }
+        await fetchNames();
+        await openMap(n);
+      }
+      async function renameMap() {
+        if (!curMap) return;
+        let n = curMap;
+        for (;;) {
+          n = await dialog({ title: 'Rename aerodrome', input: n, ok: 'Rename' });
+          if (n === null) return;
+          n = cleanName(n);
+          if (!n || n === curMap) return;
+          if (!mapNames.includes(n)) break;
+          await dialog({ title: 'Name already used', text: `"${n}" already exists.`, cancel: false });
+        }
+        const r = await fetch('/api/rename/' + encodeURIComponent(curMap), { method: 'POST', body: JSON.stringify({ to: n }) });
+        if (!r.ok) { await dialog({ title: 'Error', text: 'Could not rename map.', cancel: false }); return; }
+        await fetchNames();
+        await openMap(n);
+      }
+      async function deleteMap() {
+        if (!curMap) return;
+        const ok = await dialog({ title: `Delete "${curMap}"?`, text: `This permanently removes maps/${curMap}.json.`, ok: 'Delete', danger: true });
+        if (!ok) return;
+        await fetch('/api/maps/' + encodeURIComponent(curMap), { method: 'DELETE' });
+        await fetchNames();
+        if (mapNames.length) await openMap(mapNames[0]);
+        else {
+          S = { features: [] };
+          curMap = null;
+          await newMap('My Airport');
+        }
+      }
+
+      /* ---------- undo / redo ---------- */
+      function snap() {
+        undoStack.push(JSON.stringify(S));
+        if (undoStack.length > 100) undoStack.shift();
+        redoStack.length = 0;
+      }
+      function commit() {
+        save();
+        render();
+        renderSide();
+      }
+      function undo() {
+        if (draft) {
+          if (draft.pts.length > 1) draft.pts.pop();
+          else draft = null;
+          updateHint();
+          render();
+          return;
+        }
+        const s = undoStack.pop();
+        if (!s) return;
+        redoStack.push(JSON.stringify(S));
+        S = JSON.parse(s);
+        if (!byId(sel)) sel = selV = null;
+        commit();
+        announce('Undone');
+      }
+      function redo() {
+        const s = redoStack.pop();
+        if (!s) return;
+        undoStack.push(JSON.stringify(S));
+        S = JSON.parse(s);
+        if (!byId(sel)) sel = selV = null;
+        commit();
+        announce('Redone');
+      }
+
+      /* ---------- geometry ---------- */
+      function scale() {
+        const r = svg.getBoundingClientRect();
+        return Math.min(r.width / vb.w, r.height / vb.h) || 1;
+      }
+      function toWorld(ev) {
+        const r = svg.getBoundingClientRect();
+        const s = scale();
+        const ox = (r.width - vb.w * s) / 2,
+          oy = (r.height - vb.h * s) / 2;
+        return { x: vb.x + (ev.clientX - r.left - ox) / s, y: vb.y + (ev.clientY - r.top - oy) / s };
+      }
+      const GSTEPS = [10, 25, 50, 100, 250, 500, 1000, 2500, 5000];
+      function gridStep() {
+        const s = scale();
+        return GSTEPS.find((g) => g * s >= 16) || GSTEPS[GSTEPS.length - 1];
+      }
+      const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+      function projSeg(p, a, b) {
+        const dx = b.x - a.x, dy = b.y - a.y, l = dx * dx + dy * dy;
+        let t = l ? ((p.x - a.x) * dx + (p.y - a.y) * dy) / l : 0;
+        t = Math.max(0, Math.min(1, t));
+        return { x: a.x + t * dx, y: a.y + t * dy };
+      }
+      function nearPoly(p, pts) {
+        let best = { d: dist(p, pts[0]), q: pts[0] };
+        for (let i = 0; i < pts.length - 1; i++) {
+          const q = projSeg(p, pts[i], pts[i + 1]), d = dist(p, q);
+          if (d < best.d) best = { d, q };
+        }
+        return best;
+      }
+      function segX(a, b, c, d) {
+        const r = { x: b.x - a.x, y: b.y - a.y }, s = { x: d.x - c.x, y: d.y - c.y };
+        const den = r.x * s.y - r.y * s.x;
+        if (Math.abs(den) < 1e-9) return null;
+        const t = ((c.x - a.x) * s.y - (c.y - a.y) * s.x) / den,
+          u = ((c.x - a.x) * r.y - (c.y - a.y) * r.x) / den;
+        if (t < 0 || t > 1 || u < 0 || u > 1) return null;
+        return { x: a.x + t * r.x, y: a.y + t * r.y };
+      }
+      const TOL = 8;
+      // Where two line features meet (shared end, T-junction or crossing), or null.
+      function junction(A, B) {
+        for (const e of [A.pts[0], A.pts[A.pts.length - 1]]) {
+          const r = nearPoly(e, B.pts);
+          if (r.d <= TOL) return r.q;
+        }
+        for (const e of [B.pts[0], B.pts[B.pts.length - 1]]) {
+          const r = nearPoly(e, A.pts);
+          if (r.d <= TOL) return r.q;
+        }
+        for (let i = 0; i < A.pts.length - 1; i++)
+          for (let j = 0; j < B.pts.length - 1; j++) {
+            const x = segX(A.pts[i], A.pts[i + 1], B.pts[j], B.pts[j + 1]);
+            if (x) return x;
+          }
+        return null;
+      }
+      const neighbours = (f) => (isLine(f) ? S.features.filter((o) => o !== f && isLine(o) && junction(f, o)) : []);
+      const polyLen = (pts) => pts.reduce((s, p, i) => (i ? s + dist(pts[i - 1], p) : 0), 0);
+
+      function snapPoint(p, ignore, o = {}) {
+        if (o.free) return { x: p.x, y: p.y, kind: 'free' };
+        const s = scale(), r = 12 / s;
+        let best = null, bd = r;
+        (o.extra || []).forEach((q, i) => {
+          const d = dist(p, q);
+          if (d < bd) { bd = d; best = { x: q.x, y: q.y, kind: 'own', idx: i }; }
+        });
+        for (const f of S.features) {
+          if (f === ignore) continue;
+          f.pts.forEach((q, i) => {
+            const d = dist(p, q);
+            if (d < bd) { bd = d; best = { x: q.x, y: q.y, kind: 'vertex', ref: f, end: i === 0 || i === f.pts.length - 1 }; }
+          });
+        }
+        if (best && best.kind === 'own') return { ...best, snapped: true };
+        if (!best) {
+          bd = 10 / s;
+          for (const f of S.features) {
+            if (f === ignore || !isLine(f)) continue;
+            for (let i = 0; i < f.pts.length - 1; i++) {
+              const q = projSeg(p, f.pts[i], f.pts[i + 1]), d = dist(p, q);
+              if (d < bd) { bd = d; best = { x: q.x, y: q.y, kind: 'line', ref: f }; }
+            }
+          }
+        }
+        if (gridSnap) {
+          const g = gridStep();
+          const grid = { x: Math.round(p.x / g) * g, y: Math.round(p.y / g) * g, kind: 'grid' };
+          if (best) {
+            const target = best.kind === 'line' ? nearPoly(grid, best.ref.pts).q : best;
+            if (dist(grid, target) <= TOL) return { ...grid, snapped: true, join: best };
+          }
+          return grid;
+        }
+        if (best) return { ...best, snapped: true };
+        return { x: p.x, y: p.y, kind: 'free' };
+      }
+      function snapTag(c) {
+        const nm = (f) => f.name || TYPES[f.type].label.toLowerCase();
+        if (c.join) return `Join ${nm(c.join.ref)}`;
+        if (c.kind === 'vertex' || c.kind === 'line') return `Join ${nm(c.ref)}`;
+        if (c.kind === 'own') return c.idx === 0 && draft && !TYPES[draft.type].line ? 'Click to close shape' : 'Same point';
+        return '';
+      }
+      function constrain(a, w) {
+        const dx = w.x - a.x, dy = w.y - a.y, len = Math.hypot(dx, dy);
+        const ang = Math.round(Math.atan2(dy, dx) / (Math.PI / 4)) * (Math.PI / 4);
+        return { x: a.x + Math.cos(ang) * len, y: a.y + Math.sin(ang) * len, kind: 'angle' };
+      }
+      function bbox(pts) {
+        return {
+          minx: Math.min(...pts.map((p) => p.x)), maxx: Math.max(...pts.map((p) => p.x)),
+          miny: Math.min(...pts.map((p) => p.y)), maxy: Math.max(...pts.map((p) => p.y)),
+        };
+      }
+      function snapMove(orig, dx, dy, f, free) {
+        if (free) return { dx, dy };
+        let best = null, bd = Infinity;
+        for (const p of orig) {
+          const q = { x: p.x + dx, y: p.y + dy }, s = snapPoint(q, f);
+          if (s.snapped) {
+            const d = dist(q, s);
+            if (d < bd) { bd = d; best = { dx: s.x - p.x, dy: s.y - p.y }; }
+          }
+        }
+        if (best) return best;
+        if (gridSnap) {
+          const g = gridStep();
+          return {
+            dx: Math.round((orig[0].x + dx) / g) * g - orig[0].x,
+            dy: Math.round((orig[0].y + dy) / g) * g - orig[0].y,
+          };
+        }
+        return { dx, dy };
+      }
+      function centroid(f) {
+        if (f.pts.length === 1) return f.pts[0];
+        if (isLine(f)) {
+          const tot = polyLen(f.pts);
+          let h = tot / 2;
+          for (let i = 0; i < f.pts.length - 1; i++) {
+            const d = dist(f.pts[i], f.pts[i + 1]);
+            if (h <= d) {
+              const t = d ? h / d : 0, a = f.pts[i], b = f.pts[i + 1];
+              return { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
+            }
+            h -= d;
+          }
+          return f.pts[0];
+        }
+        const n = f.pts.length;
+        return { x: f.pts.reduce((s, p) => s + p.x, 0) / n, y: f.pts.reduce((s, p) => s + p.y, 0) / n };
+      }
+      const ptsStr = (pts) => pts.map((p) => p.x + ',' + p.y).join(' ');
+
+      // Runway designators placed at the correct physical ends (e.g. 09/27 -> 09 at the west end).
+      function runwayEnds(f) {
+        if (f.type !== 'runway' || f.pts.length < 2 || !f.name) return null;
+        const m = f.name.split('/').map((x) => x.trim()).filter(Boolean);
+        if (m.length !== 2) return null;
+        const nums = m.map((x) => parseInt(x, 10));
+        if (nums.some((n) => !(n >= 1 && n <= 36))) return null;
+        const a = f.pts[0], b = f.pts[f.pts.length - 1];
+        const brg = ((Math.atan2(b.x - a.x, -(b.y - a.y)) * 180) / Math.PI + 360) % 360;
+        const dd = (n) => { const d = Math.abs(n * 10 - brg) % 360; return Math.min(d, 360 - d); };
+        const first = dd(nums[0]) <= dd(nums[1]) ? 0 : 1;
+        return [
+          { label: m[first], pt: a, toward: f.pts[1], idx: 0 },
+          { label: m[1 - first], pt: b, toward: f.pts[f.pts.length - 2], idx: 1 },
+        ];
+      }
+
+      /* ---------- rendering ---------- */
+      function drawFeature(f, g, k) {
+        const T = TYPES[f.type], d = ptsStr(f.pts), attr = { 'data-id': f.id };
+        if (T.pt) {
+          el('circle', { cx: f.pts[0].x, cy: f.pts[0].y, r: 4.5 * k, fill: T.color, stroke: '#fff', 'stroke-width': 1.5 * k, ...attr }, g);
+          el('circle', { cx: f.pts[0].x, cy: f.pts[0].y, r: 14 * k, fill: 'transparent', ...attr }, g);
+        } else if (T.line) {
+          const base = { points: d, fill: 'none', 'stroke-linecap': 'round', 'stroke-linejoin': 'round', ...attr };
+          el('polyline', { ...base, stroke: f.type === 'runway' ? '#aab4c3' : '#8c7424', 'stroke-width': T.w + 4 }, g);
+          el('polyline', { ...base, stroke: T.color, 'stroke-width': T.w }, g);
+          if (f.type === 'runway') el('polyline', { ...base, stroke: '#fff', 'stroke-width': 2, 'stroke-dasharray': '14 12', 'stroke-linecap': 'butt', opacity: 0.85 }, g);
+          el('polyline', { ...base, stroke: 'transparent', 'stroke-width': Math.max(T.w + 10, 28) }, g);
+        } else {
+          const fill = f.type === 'apron' ? '#5b6b82' : '#7c5cff';
+          el('polygon', { points: d, fill, 'fill-opacity': f.type === 'apron' ? 0.55 : 0.7, stroke: fill, 'stroke-width': 2.5, 'stroke-linejoin': 'round', ...attr }, g);
+        }
+      }
+      function highlight(f, color, pulse, soft, strong) {
+        const g = el('g', { 'pointer-events': 'none' }, $('hl'));
+        const T = TYPES[f.type], d = ptsStr(f.pts), k = 1 / scale();
+        if (strong) {
+          // white halo and a full-brightness redraw lift the target above the dimmed map
+          if (T.pt) el('circle', { cx: f.pts[0].x, cy: f.pts[0].y, r: 19 * k, fill: 'none', stroke: '#fff', 'stroke-width': 3 * k }, g);
+          else if (T.line) el('polyline', { points: d, fill: 'none', stroke: '#fff', 'stroke-width': T.w + 22, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.9 }, g);
+          else el('polygon', { points: d, fill: 'none', stroke: '#fff', 'stroke-width': 9, 'stroke-linejoin': 'round' }, g);
+          drawFeature(f, g, k);
+        }
+        let e;
+        if (T.pt) e = el('circle', { cx: f.pts[0].x, cy: f.pts[0].y, r: 13 * k, fill: 'none', stroke: color, 'stroke-width': 3.5 * k, opacity: soft ? 0.7 : 1 }, g);
+        else if (T.line) e = el('polyline', { points: d, fill: 'none', stroke: color, 'stroke-width': T.w + 12, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: soft ? 0.35 : strong ? 0.45 : 0.6 }, g);
+        else e = el('polygon', { points: d, fill: color, 'fill-opacity': soft ? 0.15 : 0.25, stroke: color, 'stroke-width': 5, 'stroke-linejoin': 'round' }, g);
+        if (pulse) e.setAttribute('class', 'pulse');
+      }
+      const hoverOK = () =>
+        hover && !drag && !panning &&
+        (mode === 'study' || (mode === 'quiz' && quiz && quiz.kind === 'find' && !quiz.answered) || (mode === 'draw' && tool === 'select'));
+
+      function render() {
+        const s = scale(), k = 1 / s;
+        svg.innerHTML = '';
+        svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        $('undo').disabled = !(undoStack.length || draft);
+        $('redo').disabled = !redoStack.length;
+        $('draftbar').classList.toggle('hidden', !draft);
+        if (draft) {
+          const min = TYPES[draft.type].line ? 2 : 3;
+          $('dcount').textContent = `${TYPES[draft.type].label} · ${draft.pts.length} point${draft.pts.length === 1 ? '' : 's'}`;
+          $('dfinish').disabled = draft.pts.length < min;
+          $('dundo').disabled = !draft.pts.length;
+        }
+        const g = gridStep();
+        const defs = el('defs', {}, svg);
+        const p1 = el('pattern', { id: 'grid', width: g, height: g, patternUnits: 'userSpaceOnUse' }, defs);
+        el('path', { d: `M${g} 0H0V${g}`, fill: 'none', stroke: '#243850', 'stroke-width': 1.1 * k }, p1);
+        const p5 = el('pattern', { id: 'grid5', width: g * 5, height: g * 5, patternUnits: 'userSpaceOnUse' }, defs);
+        el('path', { d: `M${g * 5} 0H0V${g * 5}`, fill: 'none', stroke: '#3a5675', 'stroke-width': 1.4 * k }, p5);
+        const big = 20000;
+        for (const id of ['grid', 'grid5']) el('rect', { x: -big, y: -big, width: big * 2, height: big * 2, fill: `url(#${id})`, 'data-bg': 1 }, svg);
+        const focusQ = mode === 'quiz' && quiz && quiz.cur && !quiz.answered && ['name', 'dims', 'conn'].includes(quiz.kind);
+        const gMain = el('g', { opacity: mode === 'quiz' && quiz && quiz.answered ? 0.25 : focusQ ? 0.4 : 1 }, svg);
+        el('g', { id: 'hl' }, svg);
+        const gLbl = el('g', {}, svg);
+        const gUI = el('g', {}, svg);
+        for (const t of ['apron', 'building', 'taxiway', 'runway', 'point'])
+          for (const f of S.features.filter((x) => x.type === t)) drawFeature(f, gMain, k);
+
+        // highlights
+        if (hoverOK() && byId(hover)) highlight(byId(hover), '#f0f4ff', false, true);
+        quizHighlights(gUI, k);
+        if (mode !== 'quiz' && sel && byId(sel)) highlight(byId(sel), '#4cc9f0', false);
+
+        // labels (points are screen-sized and decluttered so close-together gates stay readable)
+        const showAll = mode === 'draw' || (mode === 'study' && labelsOn);
+        const reveal = (f) => mode === 'quiz' && quiz && quiz.answered && (quiz.cur === f.id || (quiz.showIds && quiz.showIds.has(f.id)));
+        const nameEnd = mode === 'quiz' && quiz && quiz.kind === 'name' && quiz.nameEnd && byId(quiz.cur) && byId(quiz.cur).type === 'runway' ? { feature: byId(quiz.cur), end: quiz.nameEnd } : null;
+        const placed = [];
+        const box = (x, y, text, fs) => ({ x: x - (text.length * fs * 0.6 + 4) / 2, y: y - fs * 0.65, w: text.length * fs * 0.6 + 4, h: fs * 1.3 });
+        const clash = (b) => placed.some((o) => b.x < o.x + o.w && b.x + b.w > o.x && b.y < o.y + o.h && b.y + b.h > o.y);
+        const addLabel = (f, fs) => {
+          const c = centroid(f);
+          const lx = c.x, ly = c.y + (f.type === 'point' ? -12 * k : 0);
+          const t = el('text', { x: lx, y: ly, 'font-size': fs, class: 'lbl' }, gLbl);
+          if (f.type === 'point') { t.setAttribute('stroke-width', 3 * k); }
+          t.textContent = f.name;
+          return box(lx, ly, f.name, fs);
+        };
+        const vis = S.features.filter((f) => named(f) && (showAll || reveal(f)));
+        for (const f of vis.filter((x) => x.type !== 'point' && !(nameEnd && nameEnd.feature === x))) placed.push(addLabel(f, 20));
+        const pts = vis.filter((x) => x.type === 'point');
+        const forced = (f) => reveal(f) || f.id === sel || f.id === hover;
+        pts.sort((a, b) => forced(b) - forced(a));
+        for (const f of pts) {
+          const c = centroid(f), fs = 12 * k;
+          const b = box(c.x, c.y - 12 * k, f.name, fs);
+          if (!forced(f) && clash(b)) continue;
+          placed.push(addLabel(f, fs));
+        }
+        // runway end designators
+        for (const f of S.features.filter((x) => x.type === 'runway')) {
+          const ends = runwayEnds(f);
+          if (!ends) continue;
+          if (!(showAll || reveal(f))) continue;
+          for (const e of ends) {
+            if (mode === 'quiz' && nameEnd && nameEnd.feature === f && nameEnd.end.idx !== e.idx) continue;
+            const len = dist(e.pt, e.toward) || 1, ux = (e.toward.x - e.pt.x) / len, uy = (e.toward.y - e.pt.y) / len;
+            const x = e.pt.x + ux * 38, y = e.pt.y + uy * 38;
+            const t = el('text', { x, y, 'font-size': 20, class: 'lbl', transform: `rotate(${(Math.atan2(uy, ux) * 180) / Math.PI + 90} ${x} ${y})` }, gLbl);
+            t.setAttribute('stroke-width', 3);
+            t.textContent = e.label;
+          }
+        }
+
+        // anchor markers: make join points obvious while drawing lines
+        const lineTool = mode === 'draw' && (tool === 'runway' || tool === 'taxiway');
+        if (lineTool || (drag && drag.kind === 'vertex' && isLine(drag.f))) {
+          for (const f of S.features.filter((x) => isLine(x) && x !== (drag && drag.f)))
+            for (const q of [f.pts[0], f.pts[f.pts.length - 1]]) {
+              el('circle', { cx: q.x, cy: q.y, r: 7 * k, fill: '#34d39922', stroke: '#34d399', 'stroke-width': 2 * k, 'pointer-events': 'none' }, gUI);
+              el('circle', { cx: q.x, cy: q.y, r: 2 * k, fill: '#34d399', 'pointer-events': 'none' }, gUI);
+            }
+        }
+        // selection handles
+        const f = mode === 'draw' && tool === 'select' ? byId(sel) : null;
+        if (f) {
+          const T = TYPES[f.type], n = f.pts.length;
+          if (isLine(f))
+            for (const nb of neighbours(f)) {
+              const j = junction(f, nb);
+              el('circle', { cx: j.x, cy: j.y, r: 11 * k, fill: 'none', stroke: '#fbbf24', 'stroke-width': 2.5 * k, 'pointer-events': 'none' }, gUI);
+            }
+          if (!T.pt) {
+            const closed = !T.line && n > 2;
+            for (let i = 0; i < (closed ? n : n - 1); i++) {
+              const a = f.pts[i], b = f.pts[(i + 1) % n];
+              const mp = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+              if (dist(a, b) * s < 28) continue;
+              el('circle', { cx: mp.x, cy: mp.y, r: 5 * k, fill: '#0b1016', stroke: '#4cc9f0', 'stroke-width': 1.8 * k, 'data-mid': i, style: 'cursor:grab' }, gUI);
+              el('path', { d: `M${mp.x - 2.5 * k} ${mp.y}h${5 * k}M${mp.x} ${mp.y - 2.5 * k}v${5 * k}`, stroke: '#4cc9f0', 'stroke-width': 1.2 * k, 'pointer-events': 'none' }, gUI);
+            }
+            f.pts.forEach((p, i) =>
+              el('circle', { cx: p.x, cy: p.y, r: 7.5 * k, fill: i === selV ? '#4cc9f0' : '#fff', stroke: '#4cc9f0', 'stroke-width': 2 * k, 'data-h': i, style: 'cursor:grab' }, gUI),
+            );
+          }
+          if (n > 1) {
+            const b = bbox(f.pts), cx = (b.minx + b.maxx) / 2;
+            el('rect', { x: b.minx, y: b.miny, width: b.maxx - b.minx, height: b.maxy - b.miny, fill: 'none', stroke: '#4cc9f0', 'stroke-width': 1.5 * k, 'stroke-dasharray': `${6 * k} ${5 * k}`, 'pointer-events': 'none' }, gUI);
+            el('line', { x1: cx, y1: b.miny, x2: cx, y2: b.miny - 34 * k, stroke: '#4cc9f0', 'stroke-width': 1.5 * k, 'pointer-events': 'none' }, gUI);
+            el('circle', { cx, cy: b.miny - 34 * k, r: 9 * k, fill: '#4cc9f0', stroke: '#fff', 'stroke-width': 2 * k, 'data-tf': 'rotate', style: 'cursor:alias' }, gUI);
+            el('rect', { x: b.maxx - 8 * k, y: b.maxy - 8 * k, width: 16 * k, height: 16 * k, rx: 3 * k, fill: '#7c5cff', stroke: '#fff', 'stroke-width': 2 * k, 'data-tf': 'scale', style: 'cursor:nwse-resize' }, gUI);
+          }
+        }
+        // draft
+        if (draft) {
+          const T = TYPES[draft.type], pp = [...draft.pts];
+          if (cursor) pp.push(cursor);
+          if (T.line) el('polyline', { points: ptsStr(pp), fill: 'none', stroke: T.color, 'stroke-width': T.w, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0.65, 'pointer-events': 'none' }, gUI);
+          else el('polygon', { points: ptsStr(pp), fill: T.color, 'fill-opacity': 0.3, stroke: T.color, 'stroke-width': 2.5, 'stroke-dasharray': '8 6', 'pointer-events': 'none' }, gUI);
+          draft.pts.forEach((p, i) =>
+            el('circle', { cx: p.x, cy: p.y, r: (i === draft.pts.length - 1 ? 6 : 4.5) * k, fill: i === draft.pts.length - 1 ? '#4cc9f0' : '#fff', stroke: '#05090e', 'stroke-width': k, 'pointer-events': 'none' }, gUI),
+          );
+          if (!T.line && draft.pts.length >= 3)
+            el('circle', { cx: draft.pts[0].x, cy: draft.pts[0].y, r: 10 * k, fill: 'none', stroke: '#34d399', 'stroke-width': 2 * k, 'stroke-dasharray': `${4 * k} ${3 * k}`, 'pointer-events': 'none' }, gUI);
+        }
+        // cursor feedback
+        const showCur = cursor && ((mode === 'draw' && tool !== 'select') || (drag && drag.kind === 'vertex'));
+        if (showCur) {
+          const c = cursor, tags = [];
+          if (c.snapped) {
+            el('circle', { cx: c.x, cy: c.y, r: 12 * k, fill: '#34d39933', stroke: '#34d399', 'stroke-width': 3 * k, 'pointer-events': 'none' }, gUI);
+            tags.push(snapTag(c));
+          } else {
+            const a = 7 * k;
+            el('path', { d: `M${c.x - a} ${c.y}H${c.x + a}M${c.x} ${c.y - a}V${c.y + a}`, stroke: c.kind === 'free' ? '#8a9bb0' : '#4cc9f0', 'stroke-width': 1.6 * k, 'pointer-events': 'none' }, gUI);
+            if (c.kind === 'angle') tags.push('45° locked');
+          }
+          if (kb) el('rect', { x: c.x - 16 * k, y: c.y - 16 * k, width: 32 * k, height: 32 * k, fill: 'none', stroke: '#4cc9f0', 'stroke-width': 1.4 * k, 'stroke-dasharray': `${4 * k} ${3 * k}`, 'pointer-events': 'none' }, gUI);
+          if (draft && draft.pts.length) {
+            const l = draft.pts[draft.pts.length - 1];
+            const d = dist(l, c);
+            if (d > 1) tags.push(`${Math.round(((Math.atan2(c.x - l.x, -(c.y - l.y)) * 180) / Math.PI + 360) % 360)}° · ${Math.round(d)} u`);
+          }
+          tags.forEach((txt, i) => {
+            if (!txt) return;
+            const w = (txt.length * 6.4 + 14) * k, h = 20 * k, x = c.x + 16 * k, y = c.y + (14 + i * 24) * k;
+            el('rect', { x, y, width: w, height: h, rx: 6 * k, class: 'tagbg', 'stroke-width': k, 'pointer-events': 'none' }, gUI);
+            const t = el('text', { x: x + 7 * k, y: y + 14 * k, 'font-size': 11.5 * k, class: 'tagtx', 'pointer-events': 'none' }, gUI);
+            t.textContent = txt;
+          });
+        }
+      }
+
+      /* ---------- tools ---------- */
+      function renderTools() {
+        const t = $('tools');
+        t.innerHTML = '';
+        const defs = [['select', 'Select'], ['sep'], ['runway', 'Runway'], ['taxiway', 'Taxiway'], ['apron', 'Apron'], ['building', 'Building'], ['point', 'Point']];
+        for (const d of defs) {
+          if (d[0] === 'sep') { t.appendChild(document.createElement('hr')); continue; }
+          const b = document.createElement('button');
+          b.className = tool === d[0] ? 'on' : '';
+          b.setAttribute('aria-pressed', tool === d[0]);
+          b.setAttribute('aria-keyshortcuts', KEYS[d[0]]);
+          b.title = `${d[1]} (${KEYS[d[0]]})`;
+          b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[d[0]]}</svg>${d[1]}<kbd aria-hidden="true">${KEYS[d[0]]}</kbd>`;
+          b.onclick = () => setTool(d[0]);
+          t.appendChild(b);
+        }
+      }
+      function setTool(t) {
+        cancelDraft();
+        tool = t;
+        if (t !== 'select') sel = selV = null;
+        cursor = kb = null;
+        renderTools();
+        renderSide();
+        render();
+        updateHint();
+        announce(`${t === 'select' ? 'Select' : TYPES[t].label} tool. ${HINTS[t]}`);
+        svg.style.cursor = t === 'select' ? '' : 'crosshair';
+      }
+      function cancelDraft() {
+        draft = null;
+        $('draftbar').classList.add('hidden');
+      }
+      function focusName() {
+        setTimeout(() => {
+          const i = $('nameInput');
+          if (i) { i.focus(); i.select(); }
+        }, 30);
+      }
+      function finishDraft() {
+        if (!draft) return;
+        const T = TYPES[draft.type];
+        const pts = draft.pts.filter((p, i, a) => i === 0 || dist(p, a[i - 1]) > 1);
+        if (pts.length >= (T.line ? 2 : 3)) {
+          snap();
+          const f = { id: uid(), type: draft.type, name: '', pts: pts.map((p) => ({ x: p.x, y: p.y })) };
+          S.features.push(f);
+          sel = f.id;
+          selV = null;
+          draft = null;
+          tool = 'select';
+          cursor = kb = null;
+          renderTools();
+          commit();
+          focusName();
+          updateHint();
+          svg.style.cursor = '';
+          announce(`${T.label} added. Type a name.`);
+        } else {
+          announce(`A ${T.label.toLowerCase()} needs at least ${T.line ? 2 : 3} points`);
+          render();
+        }
+      }
+      function addDraftPoint(p) {
+        if (tool === 'point') {
+          snap();
+          const f = { id: uid(), type: 'point', name: '', pts: [{ x: p.x, y: p.y }] };
+          S.features.push(f);
+          sel = f.id;
+          selV = null;
+          tool = 'select';
+          cursor = kb = null;
+          renderTools();
+          commit();
+          focusName();
+          updateHint();
+          svg.style.cursor = '';
+          announce('Point added. Type a name.');
+          return;
+        }
+        const T = TYPES[tool];
+        if (!draft) draft = { type: tool, pts: [{ x: p.x, y: p.y }] };
+        else {
+          const last = draft.pts[draft.pts.length - 1];
+          const closing = !T.line && draft.pts.length >= 3 && dist(draft.pts[0], p) < 12 / scale();
+          if (closing || dist(last, p) < 4 / scale()) { finishDraft(); return; }
+          draft.pts.push({ x: p.x, y: p.y });
+        }
+        cursor = { ...p };
+        updateHint();
+        render();
+      }
+      function delVertex(i) {
+        const f = byId(sel);
+        if (!f || !f.pts[i] || f.pts.length <= (isLine(f) ? 2 : 3)) return false;
+        snap();
+        f.pts.splice(i, 1);
+        selV = null;
+        commit();
+        announce('Point removed');
+        return true;
+      }
+      function delSel() {
+        const f = byId(sel);
+        if (!f) return;
+        snap();
+        S.features = S.features.filter((x) => x.id !== sel);
+        sel = selV = null;
+        commit();
+        announce(`${f.name || TYPES[f.type].label} deleted. Press Ctrl+Z to undo.`);
+      }
+      function nudge(dx, dy) {
+        const f = byId(sel);
+        if (!f) return;
+        snap();
+        if (selV !== null && f.pts[selV]) f.pts[selV] = { x: f.pts[selV].x + dx, y: f.pts[selV].y + dy };
+        else f.pts = f.pts.map((p) => ({ x: p.x + dx, y: p.y + dy }));
+        commit();
+      }
+      function kbMove(dx, dy) {
+        const g = gridStep();
+        if (!kb) kb = cursor ? { x: cursor.x, y: cursor.y } : { x: Math.round(viewCenter().x / g) * g, y: Math.round(viewCenter().y / g) * g };
+        kb = { x: kb.x + dx * g, y: kb.y + dy * g };
+        cursor = snapPoint(kb, null, { extra: draft ? draft.pts : [] });
+        if (cursor.x < vb.x || cursor.x > vb.x + vb.w || cursor.y < vb.y || cursor.y > vb.y + vb.h) { vb.x += dx * vb.w * 0.3; vb.y += dy * vb.h * 0.3; }
+        render();
+        announce(cursor.snapped ? snapTag(cursor) : '');
+      }
+      function selectFeature(id) {
+        sel = id;
+        const sf = byId(id);
+        if (sf) collapsed.delete(sf.type);
+        selV = null;
+        renderSide();
+        render();
+        const it = document.querySelector('.item.sel');
+        if (it) it.scrollIntoView({ block: 'nearest' });
+        const f = byId(id);
+        if (f) announce(`${TYPES[f.type].label} ${f.name || 'unnamed'} selected`);
+      }
+      function selectRelative(d) {
+        const list = sortedFeatures();
+        if (!list.length) return;
+        let i = list.findIndex((f) => f.id === sel);
+        i = i < 0 ? (d > 0 ? 0 : list.length - 1) : (i + d + list.length) % list.length;
+        selectFeature(list[i].id);
+      }
+      function updateHint() {
+        const h = $('hint');
+        if (mode === 'draw') {
+          if (draft) {
+            const poly = !TYPES[draft.type].line;
+            h.textContent = `${draft.pts.length} point${draft.pts.length === 1 ? '' : 's'} · Backspace undoes the last point · Enter finishes${poly ? ' (or click the first point)' : ''} · Esc cancels`;
+          } else h.textContent = HINTS[tool] + (gridSnap ? ` · grid ${gridStep()} u` : '');
+        } else if (mode === 'study') h.textContent = 'Click any feature to see its name · [ and ] step through · L toggles labels';
+        else if (!quiz || quiz.idle || quiz.done) h.textContent = 'Choose a quiz type and press Start';
+        else if (quiz.kind === 'find') h.textContent = 'Click the feature on the map';
+        else if (quiz.kind === 'conn') h.textContent = QOPT.typed ? 'Type every line that joins the highlighted one · Enter submits' : 'Tick every line that joins the highlighted one · number keys toggle · Enter checks';
+        else h.textContent = 'Number keys pick an answer · Enter for next';
+      }
+
+      /* ---------- pointer interaction ---------- */
+      function startPan(ev) {
+        panning = { sx: ev.clientX, sy: ev.clientY, vx: vb.x, vy: vb.y };
+        svg.setPointerCapture(ev.pointerId);
+        svg.style.cursor = 'grabbing';
+      }
+      function cursorFor(tg) {
+        const d = (tg && tg.dataset) || {};
+        if (panning || drag) return 'grabbing';
+        if (spaceDown) return 'grab';
+        if (mode === 'study') return d.id ? 'pointer' : 'grab';
+        if (mode === 'quiz') return quiz && quiz.kind === 'find' && !quiz.answered && d.id ? 'pointer' : 'grab';
+        if (tool !== 'select') return 'crosshair';
+        if (d.h !== undefined || d.mid !== undefined) return 'grab';
+        if (d.tf) return d.tf === 'rotate' ? 'alias' : 'nwse-resize';
+        if (d.id) return 'move';
+        return '';
+      }
+      svg.addEventListener('pointerdown', (ev) => {
+        const w = toWorld(ev), tg = ev.target;
+        svg.focus({ preventScroll: true });
+        if (ev.button === 1 || spaceDown) { startPan(ev); return; }
+        if (ev.button !== 0) return;
+        if (mode === 'quiz') {
+          if (quiz && quiz.kind === 'find' && !quiz.answered && tg.dataset.id) { answerFind(tg.dataset.id); return; }
+          startPan(ev);
+          return;
+        }
+        if (mode === 'study') {
+          if (tg.dataset.id && named(byId(tg.dataset.id))) { selectFeature(tg.dataset.id); return; }
+          startPan(ev);
+          startPan(ev);
+          return;
+        }
+        if (tool === 'select') {
+          if (tg.dataset.tf) {
+            const f = byId(sel), b = bbox(f.pts);
+            snap();
+            const orig = f.pts.map((p) => ({ ...p }));
+            if (tg.dataset.tf === 'scale') {
+              const anchor = { x: b.minx, y: b.miny };
+              drag = { kind: 'scale', f, orig, anchor, d0: Math.max(1, dist(anchor, { x: b.maxx, y: b.maxy })) };
+            } else {
+              const c = { x: (b.minx + b.maxx) / 2, y: (b.miny + b.maxy) / 2 };
+              drag = { kind: 'rotate', f, orig, c, a0: Math.atan2(w.y - c.y, w.x - c.x) };
+            }
+            svg.setPointerCapture(ev.pointerId);
+            return;
+          }
+          if (tg.dataset.h !== undefined) {
+            const i = +tg.dataset.h, now = Date.now();
+            if (lastVtx && lastVtx.i === i && now - lastVtx.t < 400) { lastVtx = null; if (delVertex(i)) return; }
+            lastVtx = { i, t: now };
+            selV = i;
+            snap();
+            drag = { kind: 'vertex', f: byId(sel), i, moved: false };
+            svg.setPointerCapture(ev.pointerId);
+            render();
+            return;
+          }
+          if (tg.dataset.mid !== undefined) {
+            const f = byId(sel), i = +tg.dataset.mid, a = f.pts[i], b = f.pts[(i + 1) % f.pts.length];
+            snap();
+            const at = i + 1;
+            f.pts.splice(at, 0, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+            selV = at;
+            drag = { kind: 'vertex', f, i: at, moved: true };
+            svg.setPointerCapture(ev.pointerId);
+            announce('Bend added');
+            render();
+            return;
+          }
+          if (tg.dataset.id) {
+            const f = byId(tg.dataset.id);
+            sel = f.id;
+            selV = null;
+            snap();
+            drag = { kind: 'move', f, start: w, orig: f.pts.map((p) => ({ ...p })), moved: false };
+            svg.setPointerCapture(ev.pointerId);
+            renderSide();
+            render();
+            return;
+          }
+          sel = selV = null;
+          renderSide();
+          render();
+          startPan(ev);
+          return;
+        }
+        // creation tools
+        kb = null;
+        let p = snapPoint(w, null, { free: ev.altKey, extra: draft ? draft.pts : [] });
+        if (ev.shiftKey && draft && draft.pts.length && !p.snapped) p = constrain(draft.pts[draft.pts.length - 1], w);
+        addDraftPoint(p);
+      });
+      svg.addEventListener('pointermove', (ev) => {
+        if (panning) {
+          const s = scale();
+          vb.x = panning.vx - (ev.clientX - panning.sx) / s;
+          vb.y = panning.vy - (ev.clientY - panning.sy) / s;
+          render();
+          return;
+        }
+        const w = toWorld(ev);
+        if (drag) {
+          if (drag.kind === 'vertex') {
+            const p = snapPoint(w, drag.f, { free: ev.altKey });
+            drag.f.pts[drag.i] = { x: p.x, y: p.y };
+            drag.moved = true;
+            cursor = p;
+          } else if (drag.kind === 'scale') {
+            const p = snapPoint(w, drag.f, { free: ev.altKey }), a = drag.anchor;
+            const k = Math.max(0.05, dist(a, p) / drag.d0);
+            drag.f.pts = drag.orig.map((q) => ({ x: a.x + (q.x - a.x) * k, y: a.y + (q.y - a.y) * k }));
+          } else if (drag.kind === 'rotate') {
+            const c = drag.c;
+            let da = Math.atan2(w.y - c.y, w.x - c.x) - drag.a0;
+            if (!ev.altKey) { const st = Math.PI / 12; da = Math.round(da / st) * st; }
+            const cs = Math.cos(da), sn = Math.sin(da);
+            drag.f.pts = drag.orig.map((q) => ({ x: c.x + (q.x - c.x) * cs - (q.y - c.y) * sn, y: c.y + (q.x - c.x) * sn + (q.y - c.y) * cs }));
+          } else {
+            const dx = w.x - drag.start.x, dy = w.y - drag.start.y;
+            if (Math.hypot(dx, dy) * scale() > 3) drag.moved = true;
+            const m = snapMove(drag.orig, dx, dy, drag.f, ev.altKey);
+            drag.f.pts = drag.orig.map((p) => ({ x: p.x + m.dx, y: p.y + m.dy }));
+          }
+          render();
+          return;
+        }
+        const id = (ev.target.dataset && ev.target.dataset.id) || null;
+        svg.style.cursor = cursorFor(ev.target);
+        let dirty = false;
+        if (id !== hover) { hover = id; if (hoverOK() || hover === null) dirty = true; }
+        if (mode === 'draw' && tool !== 'select') {
+          kb = null;
+          let p = snapPoint(w, null, { free: ev.altKey, extra: draft ? draft.pts : [] });
+          if (ev.shiftKey && draft && draft.pts.length && !p.snapped) p = constrain(draft.pts[draft.pts.length - 1], w);
+          cursor = p;
+          dirty = true;
+        }
+        if (dirty) render();
+      });
+      svg.addEventListener('pointerleave', () => {
+        if (drag || panning) return;
+        const had = hover || (cursor && mode === 'draw' && tool !== 'select');
+        hover = null;
+        if (!kb) cursor = null;
+        if (had) render();
+      });
+      svg.addEventListener('pointerup', () => {
+        if (drag) {
+          const d = drag;
+          drag = null;
+          cursor = null;
+          if ((d.kind === 'move' || d.kind === 'vertex') && !d.moved) undoStack.pop();
+          save();
+          renderSide();
+          render();
+        }
+        if (panning) { panning = null; svg.style.cursor = ''; }
+      });
+      svg.addEventListener('wheel', (ev) => { ev.preventDefault(); zoomAt(toWorld(ev), ev.deltaY < 0 ? 0.88 : 1.14); }, { passive: false });
+      svg.addEventListener('contextmenu', (e) => e.preventDefault());
+      function zoomAt(w, k) {
+        const nw = Math.min(12000, Math.max(150, vb.w * k)), kk = nw / vb.w;
+        vb.x = w.x - (w.x - vb.x) * kk;
+        vb.y = w.y - (w.y - vb.y) * kk;
+        vb.w = nw;
+        vb.h *= kk;
+        render();
+        if (mode === 'draw' && !draft) updateHint();
+      }
+      const viewCenter = () => ({ x: vb.x + vb.w / 2, y: vb.y + vb.h / 2 });
+      function fit() {
+        const r = svg.getBoundingClientRect();
+        const ar = r.width / r.height || 1.6;
+        let minx = 0, miny = 0, maxx = 1600, maxy = 1000;
+        if (S.features.length) {
+          minx = miny = Infinity;
+          maxx = maxy = -Infinity;
+          S.features.forEach((f) => f.pts.forEach((p) => {
+            minx = Math.min(minx, p.x); maxx = Math.max(maxx, p.x);
+            miny = Math.min(miny, p.y); maxy = Math.max(maxy, p.y);
+          }));
+          minx -= 100; miny -= 100; maxx += 100; maxy += 100;
+        }
+        let w = maxx - minx, h = maxy - miny;
+        if (w / h < ar) w = h * ar;
+        else h = w / ar;
+        vb = { x: (minx + maxx) / 2 - w / 2, y: (miny + maxy) / 2 - h / 2, w, h };
+        render();
+      }
+      $('zin').onclick = () => zoomAt(viewCenter(), 0.8);
+      $('zout').onclick = () => zoomAt(viewCenter(), 1.25);
+      $('zfit').onclick = fit;
+      function toggleGrid() {
+        gridSnap = !gridSnap;
+        localStorage.setItem('aerodrome-grid', gridSnap ? '1' : '0');
+        $('zgrid').classList.toggle('on', gridSnap);
+        $('zgrid').setAttribute('aria-pressed', gridSnap);
+        announce(`Snap to grid ${gridSnap ? 'on' : 'off'}`);
+        updateHint();
+      }
+      $('zgrid').onclick = toggleGrid;
+      $('zgrid').classList.toggle('on', gridSnap);
+      $('zgrid').setAttribute('aria-pressed', gridSnap);
+      $('undo').onclick = undo;
+      $('redo').onclick = redo;
+      $('dundo').onclick = () => { undo(); svg.focus(); };
+      $('dfinish').onclick = () => { finishDraft(); };
+      $('dcancel').onclick = () => { cancelDraft(); updateHint(); render(); svg.focus(); announce('Drawing cancelled'); };
+      $('mapSel').onchange = (e) => { if (e.target.value) openMap(e.target.value); };
+      $('newMap').onclick = () => newMap();
+      $('renameMap').onclick = renameMap;
+      $('delMap').onclick = deleteMap;
+
+      const HELP_EDIT = `<h5>Drawing</h5><table>
+        <tr><td><kbd class="k">V</kbd> <kbd class="k">R</kbd> <kbd class="k">T</kbd> <kbd class="k">A</kbd> <kbd class="k">B</kbd> <kbd class="k">P</kbd></td><td>Select · Runway · Taxiway · Apron · Building · Point</td></tr>
+        <tr><td><kbd class="k">Click</kbd></td><td>Add a point (green ring = joins an existing line)</td></tr>
+        <tr><td><kbd class="k">Backspace</kbd></td><td>Undo the last point while drawing</td></tr>
+        <tr><td><kbd class="k">Enter</kbd></td><td>Finish the shape (polygons: or click the first point)</td></tr>
+        <tr><td><kbd class="k">Esc</kbd></td><td>Cancel drawing / deselect</td></tr>
+        <tr><td><kbd class="k">Shift</kbd></td><td>Lock to 45° angles</td></tr>
+        <tr><td><kbd class="k">Alt</kbd></td><td>Hold to place without snapping</td></tr>
+        <tr><td><kbd class="k">G</kbd></td><td>Toggle snap to grid</td></tr>
+        <tr><td><kbd class="k">←↑↓→</kbd></td><td>Move a keyboard crosshair (tool active) · <kbd class="k">Space</kbd> places a point</td></tr></table>
+        <h5>Editing</h5><table>
+        <tr><td><kbd class="k">Drag ○</kbd></td><td>Drag a small circle on an edge to bend a line</td></tr>
+        <tr><td><kbd class="k">Dbl-click ●</kbd></td><td>Remove a bend point (or select it and press Del)</td></tr>
+        <tr><td><kbd class="k">←↑↓→</kbd></td><td>Nudge selection (Shift = 5 steps)</td></tr>
+        <tr><td><kbd class="k">Enter</kbd> <kbd class="k">F2</kbd></td><td>Rename selection</td></tr>
+        <tr><td><kbd class="k">Del</kbd></td><td>Delete selection</td></tr>
+        <tr><td><kbd class="k">Ctrl+Z</kbd> <kbd class="k">Ctrl+Shift+Z</kbd></td><td>Undo / redo</td></tr></table>`;
+      const HELP_VIEW = `<h5>View, study &amp; quiz</h5><table>
+        <tr><td><kbd class="k">+</kbd> <kbd class="k">−</kbd> <kbd class="k">0</kbd></td><td>Zoom in / out / fit</td></tr>
+        <tr><td><kbd class="k">Ctrl+←↑↓→</kbd></td><td>Pan</td></tr>
+        <tr><td><kbd class="k">[</kbd> <kbd class="k">]</kbd></td><td>Previous / next feature</td></tr>
+        <tr><td><kbd class="k">L</kbd></td><td>Toggle labels (Study)</td></tr>
+        <tr><td><kbd class="k">1</kbd>–<kbd class="k">8</kbd></td><td>Pick / tick an answer (Quiz)</td></tr>
+        <tr><td><kbd class="k">Enter</kbd></td><td>Check answer / next question</td></tr></table>`;
+      $('help').onclick = () => dialog({ title: 'Keyboard shortcuts', html: (EDIT ? HELP_EDIT : '') + HELP_VIEW, ok: 'Close', cancel: false });
+
+      /* ---------- keyboard ---------- */
+      // Typed answer text; dimension questions use two boxes (length, width).
+      function typedValue() {
+        const a = $('typed'), b = $('typed2');
+        if (!a) return '';
+        if (!b) return a.value;
+        const l = a.value.trim(), w = b.value.trim();
+        return l || w ? `${l} x ${w}` : '';
+      }
+      // Enter in the length box with a value jumps to width; otherwise it submits.
+      function typedEnter(el) {
+        const b = $('typed2');
+        if (b && el.id === 'typed' && el.value.trim() && !b.value.trim()) { b.focus(); return; }
+        answerText(typedValue());
+      }
+      addEventListener('keydown', (ev) => {
+        // Some hosts (e.g. embedded browsers) pre-mark Escape as handled, so don't bail on it.
+        if ((ev.defaultPrevented && ev.key !== 'Escape') || document.querySelector('.modal')) return;
+        const ae = document.activeElement, tag = ae ? ae.tagName : '';
+        if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) {
+          if (ev.key === 'Enter' && mode === 'quiz' && quiz && !quiz.done && !quiz.idle) {
+            if (ae.id === 'typed' || ae.id === 'typed2') {
+              ev.preventDefault();
+              if (!quiz.answered) typedEnter(ae);
+              return;
+            }
+            if (ae.type === 'checkbox' && quiz.kind === 'conn' && !quiz.answered) {
+              ev.preventDefault();
+              answerConn();
+              return;
+            }
+          }
+          if (ev.key === 'Escape' || (ev.key === 'Enter' && ae.type !== 'checkbox' && tag === 'INPUT' && ae.id !== 'typed' && ae.id !== 'typed2')) ae.blur();
+          return;
+        }
+        const onBtn = tag === 'BUTTON' || tag === 'A';
+        const k = ev.key, lk = k.length === 1 ? k.toLowerCase() : k, ctrl = ev.ctrlKey || ev.metaKey;
+        if (ev.code === 'Space' && !onBtn) {
+          spaceDown = true;
+          ev.preventDefault();
+          if (mode === 'draw' && tool !== 'select' && kb && cursor) addDraftPoint(cursor);
+          return;
+        }
+        if (k === '?') { ev.preventDefault(); $('help').click(); return; }
+        if (ctrl && lk === 'z') { ev.preventDefault(); ev.shiftKey ? redo() : undo(); return; }
+        if (ctrl && lk === 'y') { ev.preventDefault(); redo(); return; }
+        const arrows = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[k];
+        if (arrows && ctrl) {
+          ev.preventDefault();
+          vb.x += arrows[0] * vb.w * 0.1;
+          vb.y += arrows[1] * vb.h * 0.1;
+          render();
+          return;
+        }
+        if (k === '+' || k === '=') { zoomAt(viewCenter(), 0.8); return; }
+        if (k === '-' || k === '_') { zoomAt(viewCenter(), 1.25); return; }
+        if (k === '0') { fit(); return; }
+        if (ctrl || ev.altKey) return;
+
+        if (mode === 'draw') {
+          if (k === 'Escape') {
+            if (draft) { cancelDraft(); updateHint(); render(); announce('Drawing cancelled'); }
+            else if (selV !== null) { selV = null; render(); }
+            else if (sel) { sel = null; renderSide(); render(); }
+            else if (tool !== 'select') setTool('select');
+            return;
+          }
+          if (k === 'Enter' && !onBtn) {
+            if (draft) finishDraft();
+            else if (sel && tool === 'select') focusName();
+            return;
+          }
+          if (k === 'F2' && sel) { ev.preventDefault(); focusName(); return; }
+          if (k === 'Backspace' || k === 'Delete') {
+            if (draft) { ev.preventDefault(); undo(); }
+            else if (sel) { ev.preventDefault(); if (!(selV !== null && delVertex(selV))) delSel(); }
+            return;
+          }
+          if (arrows) {
+            ev.preventDefault();
+            const g = gridStep(), m = ev.shiftKey ? 5 : 1;
+            if (tool !== 'select') kbMove(arrows[0] * m, arrows[1] * m);
+            else if (sel) nudge(arrows[0] * g * m, arrows[1] * g * m);
+            else { vb.x += arrows[0] * vb.w * 0.1; vb.y += arrows[1] * vb.h * 0.1; render(); }
+            return;
+          }
+          if (lk === 'g') { toggleGrid(); return; }
+          const m = { v: 'select', r: 'runway', t: 'taxiway', a: 'apron', b: 'building', p: 'point' }[lk];
+          if (m) { setTool(m); return; }
+        } else if (arrows) {
+          ev.preventDefault();
+          vb.x += arrows[0] * vb.w * 0.1;
+          vb.y += arrows[1] * vb.h * 0.1;
+          render();
+          return;
+        }
+        if (mode !== 'quiz' && (k === '[' || k === ']')) { selectRelative(k === ']' ? 1 : -1); return; }
+        if (mode === 'study' && lk === 'l') { const c = $('lblToggle'); if (c) c.click(); return; }
+        if (mode === 'study' && k === 'Escape') { sel = null; renderSide(); render(); return; }
+        if (mode === 'quiz' && quiz) {
+          if (/^[1-8]$/.test(k)) {
+            const b = document.querySelector(`[data-n="${k}"]`);
+            if (b) b.click();
+            return;
+          }
+          if (k === 'Enter' && !quiz.done && !quiz.idle) {
+            if (quiz.answered) {
+              if (!onBtn || ae.id === 'qnext') {
+                ev.preventDefault();
+                nextQ();
+              }
+              return;
+            }
+            if (ae.dataset.c !== undefined) {
+              ev.preventDefault();
+              ae.click();
+              return;
+            }
+            if (ae.id === 'qcheck') {
+              ev.preventDefault();
+              answerConn();
+              return;
+            }
+            if (ae.id === 'tsubmit') {
+              ev.preventDefault();
+              answerText(typedValue());
+              return;
+            }
+            if (!onBtn && quiz.kind === 'conn') {
+              ev.preventDefault();
+              answerConn();
+            }
+          }
+        }
+      });
+      addEventListener('keyup', (ev) => { if (ev.code === 'Space') spaceDown = false; });
+      addEventListener('blur', () => (spaceDown = false));
+
+      /* ---------- sidebar ---------- */
+      const nat = (a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+      const GROUPS = [['runway', 'Runways'], ['taxiway', 'Taxiways'], ['apron', 'Aprons'], ['building', 'Buildings'], ['point', 'Gates & points']];
+      const collapsed = new Set();
+      let listQ = '';
+      function sortedFeatures() {
+        const gi = (f) => GROUPS.findIndex((g) => g[0] === f.type);
+        return S.features.filter((f) => mode !== 'study' || (named(f) && f.type !== 'apron')).sort((a, b) => {
+          if (gi(a) !== gi(b)) return gi(a) - gi(b);
+          const an = named(a) ? 1 : 0, bn = named(b) ? 1 : 0;
+          if (an !== bn) return bn - an;
+          return nat(a.name || '', b.name || '');
+        });
+      }
+      const typeDot = (t) => `<span class="dot" style="background:${TYPES[t].color}" aria-hidden="true"></span>`;
+      function listHTML() {
+        if (!S.features.length) return '<div class="empty">Nothing drawn yet.<br>Pick a tool on the left and sketch your airport from memory.</div>';
+        const q = listQ.trim().toLowerCase();
+        const all = sortedFeatures();
+        const out = GROUPS.map(([t, label]) => {
+          const items = all.filter((f) => f.type === t && (!q || (f.name || '').toLowerCase().includes(q)));
+          if (!items.length) return '';
+          const open = q || !collapsed.has(t);
+          return `<div class="grp" role="group" aria-label="${label}"><button type="button" class="ghead" data-grp="${t}" aria-expanded="${!!open}"><span class="car" aria-hidden="true">${open ? '▾' : '▸'}</span>${typeDot(t)}<span>${label}</span><span class="cnt">${items.length}</span></button>${
+            open
+              ? items.map((f) => `<button type="button" class="item ${f.id === sel ? 'sel' : ''}" data-id="${f.id}" ${f.id === sel ? 'aria-current="true"' : ''}><span class="nm">${named(f) ? esc(f.name) : '<i class="muted">unnamed</i>'}</span>${f.type === 'runway' && dimText(f) ? `<small>${esc(dimText(f))}</small>` : ''}</button>`).join('')
+              : ''
+          }</div>`;
+        }).join('');
+        return out || `<div class="empty">No features match “${esc(listQ)}”.</div>`;
+      }
+      const filterHTML = () => `<div class="lfilter"><input type="search" id="lq" placeholder="Filter features…" aria-label="Filter features" autocomplete="off" value="${esc(listQ)}"></div>`;
+      function bindList(root) {
+        const lq = root.querySelector('#lq');
+        if (lq) lq.oninput = () => { listQ = lq.value; refreshList(); };
+        root.querySelectorAll('.list').forEach((l) => {
+          l.onclick = (e) => {
+            const h = e.target.closest('[data-grp]');
+            if (h) {
+              const t = h.dataset.grp;
+              collapsed.has(t) ? collapsed.delete(t) : collapsed.add(t);
+              refreshList();
+              const nh = l.querySelector(`[data-grp="${t}"]`);
+              if (nh) nh.focus();
+              return;
+            }
+            const b = e.target.closest('[data-id]');
+            if (b) selectFeature(b.dataset.id);
+          };
+        });
+        root.querySelectorAll('[data-go]').forEach((b) => (b.onclick = () => selectFeature(b.dataset.go)));
+      }
+      function refreshList() {
+        const l = $('side').querySelector('.list');
+        if (!l) return;
+        const top = l.scrollTop;
+        l.innerHTML = listHTML();
+        l.scrollTop = top;
+      }
+      const dimText = (f) => (f.len > 0 && f.wid > 0 ? fmtDim(f.len, f.wid) : null);
+      function connHTML(f) {
+        if (!isLine(f)) return '';
+        const nb = neighbours(f).sort((a, b) => nat(a.name || '~', b.name || '~'));
+        return `<div class="sec"><h3>Connects to (${nb.length})</h3>${
+          nb.length
+            ? `<div class="chips">${nb.map((o) => `<button type="button" class="chip" data-go="${o.id}">${esc(o.name) || 'unnamed ' + TYPES[o.type].label.toLowerCase()}</button>`).join('')}</div>`
+            : '<span class="muted">Nothing yet. End a line on a green ring (or on another line) to join them.</span>'
+        }</div>`;
+      }
+      const nameKey = (s) => String(s || '').trim().toLowerCase();
+      const nameClash = (name, id) => {
+        const k = nameKey(name);
+        return k ? S.features.find((o) => o.id !== id && o.type !== 'apron' && nameKey(o.name) === k) : null;
+      };
+      function renderSide() {
+        const a = $('side');
+        const keep = a.querySelector('.list') ? a.querySelector('.list').scrollTop : 0;
+        if (mode === 'draw') {
+          const f = byId(sel);
+          const types = f ? Object.keys(TYPES).filter((k) => TYPES[k].line === TYPES[f.type].line && !!TYPES[k].pt === !!TYPES[f.type].pt) : [];
+          a.innerHTML = `<div class="sec"><h3>${f ? 'Selected' : 'Properties'}</h3>${
+            f
+              ? `${f.type !== 'apron' ? `<div class="row"><label for="nameInput">Name</label><input type="text" id="nameInput" value="${esc(f.name)}" placeholder="e.g. Alpha, 09/27, B21" autocomplete="off"></div><div class="name-err" id="nameErr" role="alert">${f.type !== 'apron' && nameClash(f.name, f.id) ? `Duplicate name: another feature is already called “${esc(f.name.trim())}”. Rename one of them.` : ''}</div>` : ''}
+      ${f.type === 'runway' ? `<div class="row"><label for="lenInput">Length</label><input type="number" id="lenInput" min="0" step="1" inputmode="numeric" value="${f.len || ''}" placeholder="e.g. 2438"><span class="u">m</span></div>
+      <div class="row"><label for="widInput">Width</label><input type="number" id="widInput" min="0" step="1" inputmode="numeric" value="${f.wid || ''}" placeholder="e.g. 45"><span class="u">m</span></div>` : ''}
+      <div class="row"><label id="typeLbl">Type</label><div class="seg" style="flex:1" role="group" aria-labelledby="typeLbl">${types.map((k) => `<button type="button" data-t="${k}" aria-pressed="${k === f.type}" class="${k === f.type ? 'on' : ''}">${TYPES[k].label}</button>`).join('')}</div></div>
+      <div class="row"><button class="btn danger" id="del" style="flex:1">Delete</button></div>`
+              : '<div class="muted">Select a shape to name or edit it.</div>'
+          }</div>${f ? connHTML(f) : ''}
+      <div class="sec" style="padding-bottom:6px"><h3>Features (${S.features.length})</h3></div>${filterHTML()}<div class="list">${listHTML()}</div>`;
+          if (f) {
+            const ni = $('nameInput');
+            if (ni) {
+              ni.oninput = () => {
+                const err = $('nameErr'), clash = nameClash(ni.value, f.id);
+                if (clash) {
+                  ni.setAttribute('aria-invalid', 'true');
+                  err.textContent = `“${ni.value.trim()}” is already used by another ${TYPES[clash.type].label.toLowerCase()}. Names must be unique.`;
+                  return;
+                }
+                ni.removeAttribute('aria-invalid');
+                err.textContent = '';
+                f.name = ni.value;
+                save();
+                render();
+                const it = a.querySelector(`.item[data-id="${f.id}"] .nm`);
+                if (it) it.textContent = f.name || 'unnamed';
+              };
+              ni.onfocus = () => snap();
+              ni.onblur = () => {
+                if (byId(sel) !== f) return;
+                if (nameClash(ni.value, f.id)) { ni.value = f.name; ni.removeAttribute('aria-invalid'); $('nameErr').textContent = ''; }
+                refreshList();
+              };
+            }
+            const dim = (id, key) => {
+              const i = $(id);
+              if (!i) return;
+              i.onfocus = () => snap();
+              i.oninput = () => {
+                const v = parseInt(i.value, 10);
+                if (v > 0) f[key] = v;
+                else delete f[key];
+                save();
+              };
+            };
+            dim('lenInput', 'len');
+            dim('widInput', 'wid');
+            a.querySelectorAll('[data-t]').forEach((b) => (b.onclick = () => { snap(); f.type = b.dataset.t; if (f.type === 'apron') f.name = ''; commit(); }));
+            $('del').onclick = delSel;
+          }
+          bindList(a);
+        } else if (mode === 'study') {
+          const f = byId(sel);
+          const dims = f && f.type === 'runway' ? dimText(f) : null;
+          a.innerHTML = `<div class="sec"><h3>Study</h3>
+      <label class="check"><input type="checkbox" id="lblToggle" ${labelsOn ? 'checked' : ''}> Show labels on map <kbd class="k">L</kbd></label>
+      <div style="margin-top:10px${f ? ';min-height:44px' : ''}">${f ? `<div class="q">${TYPES[f.type].label}</div><div class="qbig" style="margin:2px 0">${named(f) ? esc(f.name) : '(unnamed)'}</div>${dims ? `<div>${esc(dims)}</div>` : ''}` : '<span class="muted">Click a feature to identify it.</span>'}</div></div>
+      ${f ? connHTML(f) : ''}
+      <div class="sec"><div class="legend">${Object.keys(TYPES).filter((k) => k !== 'apron').map((k) => `<span>${typeDot(k)}${TYPES[k].label}</span>`).join('')}</div></div>
+      ${filterHTML()}<div class="list">${listHTML()}</div>`;
+          $('lblToggle').onchange = (e) => { labelsOn = e.target.checked; render(); };
+          bindList(a);
+        } else renderQuizSide();
+        const l = a.querySelector('.list');
+        if (l) l.scrollTop = keep;
+      }
+
+      /* ---------- quiz data ---------- */
+      const QOPT = { kind: 'name', typed: false, types: { runway: true, taxiway: true, building: true, point: true } };
+      const quizPool = () => S.features.filter((f) => f.type !== 'apron' && named(f) && QOPT.types[f.type]);
+      const norm = (s) => String(s).trim().toLowerCase();
+      const fmtDim = (l, w) => `${l.toLocaleString('en-US')} × ${w} m`;
+      function shuffle(a) {
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
+      function dimChoices(f) {
+        const right = fmtDim(f.len, f.wid), set = new Set([right]);
+        const cand = [];
+        S.features.filter((o) => o.type === 'runway' && o !== f && o.len > 0 && o.wid > 0).forEach((o) => cand.push(fmtDim(o.len, o.wid)));
+        const widths = [...new Set([f.wid, 30, 45, 60, f.wid + 15, Math.max(15, f.wid - 15)])];
+        for (const fac of [0.75, 0.85, 0.92, 1.08, 1.15, 1.3]) {
+          const l = Math.max(100, Math.round((f.len * fac) / 10) * 10);
+          cand.push(fmtDim(l, shuffle(widths.slice())[0]));
+        }
+        cand.push(fmtDim(f.len, widths.find((w) => w !== f.wid) || f.wid + 15));
+        for (const c of shuffle(cand)) if (set.size < 4) set.add(c);
+        return shuffle([...set]);
+      }
+      function nameQuizTarget(key) {
+        const sep = key.lastIndexOf('|');
+        if (sep > 0) {
+          const f = byId(key.slice(0, sep)), i = Number(key.slice(sep + 1));
+          const ends = f && f.type === 'runway' ? runwayEnds(f) : null;
+          if (ends && Number.isInteger(i) && ends[i]) return { feature: f, end: ends[i] };
+        }
+        const feature = byId(key);
+        return feature ? { feature, end: null } : null;
+      }
+      function nameChoices(target) {
+        const { feature: f, end } = target;
+        const correct = end ? end.label : f.name;
+        if (end) {
+          const candidates = S.features
+            .filter((x) => x.type === 'runway')
+            .flatMap((x) => runwayEnds(x) || [])
+            .map((x) => x.label)
+            .filter((x) => norm(x) !== norm(correct));
+          return shuffle([correct, ...[...new Set(shuffle(candidates))].slice(0, 3)]);
+        }
+        const same = (x) => x.name && x.id !== f.id && norm(x.name) !== norm(f.name);
+        const a = shuffle(S.features.filter((x) => same(x) && x.type === f.type).map((x) => x.name));
+        const b = shuffle(S.features.filter((x) => same(x) && x.type !== f.type).map((x) => x.name));
+        return shuffle([correct, ...[...new Set([...a, ...b])].slice(0, 3)]);
+      }
+      function connOptions(f) {
+        const nb = neighbours(f).filter(named), nbSet = new Set(nb);
+        const c = centroid(f);
+        const others = S.features
+          .filter((o) => o !== f && isLine(o) && named(o) && !nbSet.has(o))
+          .sort((a, b) => dist(centroid(a), c) - dist(centroid(b), c))
+          .slice(0, 8);
+        const right = shuffle(nb.slice()).slice(0, 6);
+        const wrong = shuffle(others).slice(0, Math.max(3, Math.min(4, 8 - right.length)));
+        return { opts: shuffle([...right, ...wrong]).map((o) => o.id), right: new Set(right.map((o) => o.id)) };
+      }
+
+      function poolFor(kind) {
+        if (kind === 'mixed') return Object.keys(QKINDS).filter((k) => k !== 'mixed').flatMap((k) => poolFor(k).map((key) => ({ kind: k, key })));
+        if (kind === 'name') return quizPool().flatMap((f) => {
+          const ends = f.type === 'runway' ? runwayEnds(f) : null;
+          return ends ? ends.map((_, i) => `${f.id}|${i}`) : [f.id];
+        });
+        if (kind === 'find') return quizPool().map((f) => f.id);
+        if (kind === 'dims') return S.features.filter((f) => f.type === 'runway' && named(f) && f.len > 0 && f.wid > 0).map((f) => f.id);
+        if (kind === 'conn') return S.features.filter((f) => isLine(f) && named(f) && neighbours(f).some(named)).map((f) => f.id);
+        return [];
+      }
+      const IDLE = {
+        mixed: 'Add named features, runway dimensions and connected lines to build a mixed quiz.',
+        name: 'Name at least one feature in Draw mode first.',
+        find: 'Name at least one feature in Draw mode first.',
+        dims: 'Select a runway in Draw mode and enter its length and width first.',
+        conn: 'Draw some named runways/taxiways that join each other first.',
+      };
+
+      /* ---------- quiz engine ---------- */
+      function quizHighlights(gUI, k) {
+        if (!quiz || !quiz.cur) return;
+        const f = byId(quiz.cur);
+        if (!f) return;
+        if (quiz.kind === 'name' || quiz.kind === 'dims' || quiz.kind === 'conn') highlight(f, '#4cc9f0', !quiz.answered, false, !quiz.answered);
+        if (quiz.kind === 'name' && quiz.nameEnd) {
+          const e = quiz.nameEnd;
+          el('circle', { cx: e.pt.x, cy: e.pt.y, r: 22, fill: 'none', stroke: '#fbbf24', 'stroke-width': 3, 'pointer-events': 'none', class: quiz.answered ? '' : 'pulse' }, gUI);
+        }
+        if (quiz.kind === 'conn' && quiz.answered)
+          quiz.opts.forEach((id) => {
+            const ok = quiz.corr.has(id), picked = quiz.checked.has(id);
+            if (ok) highlight(byId(id), '#34d399', false);
+            else if (picked) highlight(byId(id), '#fb7185', false);
+          });
+        if (quiz.kind === 'find' && quiz.reveal) highlight(f, quiz.reveal, false);
+        else if (quiz.reveal) highlight(f, quiz.reveal, false);
+      }
+      function startQuiz() {
+        const pool = poolFor(QOPT.kind);
+        if (!pool.length) {
+          quiz = { idle: true, msg: IDLE[QOPT.kind] };
+          renderSide();
+          render();
+          return;
+        }
+        beginRound(QOPT.kind, shuffle(pool.slice()));
+      }
+      function beginRound(kind, keys) {
+        quiz = { kind, roundKind: kind, queue: keys, total: keys.length, idx: 0, right: 0, streak: 0, missed: [], cur: null, answered: false };
+        nextQ();
+      }
+      function nextQ() {
+        if (!quiz.queue.length) {
+          quiz.done = true;
+          quiz.cur = null;
+          renderSide();
+          render();
+          updateHint();
+          announce(`Quiz finished: ${quiz.right} of ${quiz.total}`);
+          return;
+        }
+        const item = quiz.queue.shift();
+        const kind = quiz.roundKind === 'mixed' ? item.kind : quiz.roundKind;
+        const key = quiz.roundKind === 'mixed' ? item.key : item;
+        quiz.kind = kind;
+        Object.assign(quiz, { key, answered: false, reveal: null, fb: '', fbok: false, showIds: null, nameEnd: null, picked: null, checked: new Set(), focus: 'first', choices: null, opts: null });
+        {
+          const target = quiz.kind === 'name' ? nameQuizTarget(key) : null;
+          const f = target ? target.feature : byId(key);
+          if (!f) { quiz.total--; return nextQ(); }
+          quiz.cur = key;
+          if (quiz.kind === 'name') {
+            quiz.cur = f.id;
+            quiz.nameEnd = target.end;
+            quiz.correct = target.end ? target.end.label : f.name;
+            quiz.choices = nameChoices(target);
+          } else if (quiz.kind === 'dims') {
+            quiz.correct = fmtDim(f.len, f.wid);
+            quiz.choices = dimChoices(f);
+          } else if (quiz.kind === 'conn') {
+            const o = connOptions(f);
+            quiz.opts = o.opts;
+            quiz.corr = o.right;
+          }
+          centerOn(f);
+        }
+        renderSide();
+        render();
+        updateHint();
+      }
+      function centerOn(f) {
+        const c = centroid(f);
+        if (c.x < vb.x || c.x > vb.x + vb.w || c.y < vb.y || c.y > vb.y + vb.h) { vb.x = c.x - vb.w / 2; vb.y = c.y - vb.h / 2; }
+      }
+      function record(ok) {
+        quiz.answered = true;
+        quiz.fbok = ok;
+        quiz.reveal = ok ? '#34d399' : '#fb7185';
+        if (ok) { quiz.right++; quiz.streak++; }
+        else {
+          quiz.streak = 0;
+          const missed = quiz.roundKind === 'mixed' ? { kind: quiz.kind, key: quiz.key } : quiz.key;
+          if (!quiz.missed.some((item) => JSON.stringify(item) === JSON.stringify(missed))) quiz.missed.push(missed);
+        }
+        quiz.idx++;
+        quiz.focus = 'next';
+      }
+      function finishAnswer() {
+        announce(quiz.fb);
+        renderSide();
+        render();
+      }
+      function answerText(txt) {
+        if (!quiz || quiz.answered) return;
+        const skipped = !String(txt).trim();
+        if (quiz.kind === 'conn') {
+          const p = parseConnText(txt);
+          finishConn(p.ids, p.unknown);
+          if (skipped) { quiz.fb = quiz.fb.replace(/^✗/, 'Skipped ·'); renderSide(); }
+          return;
+        }
+        const f = byId(quiz.cur);
+        let ok = false;
+        if (quiz.kind === 'name') { ok = norm(txt) === norm(quiz.correct); quiz.fb = ok ? '✓ Correct' : `✗ It was “${quiz.correct}”`; }
+        else if (quiz.kind === 'dims') {
+          const n = (String(txt).match(/\d[\d,]*/g) || []).map((x) => +x.replace(/,/g, ''));
+          ok = n[0] === f.len && n[1] === f.wid;
+          quiz.fb = ok ? '✓ Correct' : `✗ It is ${quiz.correct}`;
+        }
+        if (skipped) quiz.fb = quiz.fb.replace(/^✗/, 'Skipped ·');
+        quiz.picked = txt;
+        record(ok);
+        finishAnswer();
+      }
+      function answerConn() {
+        if (!quiz || quiz.answered || quiz.kind !== 'conn') return;
+        if (QOPT.typed) {
+          const t = $('typed');
+          if (t && document.activeElement !== t && !t.value.trim()) { t.focus(); return; }
+          return answerText(typedValue());
+        }
+        finishConn(quiz.checked, []);
+      }
+      // Turn typed text into line ids; unrecognised words are returned separately.
+      function parseConnText(txt) {
+        const lines = S.features.filter((x) => isLine(x) && named(x));
+        const byName = new Map(lines.map((x) => [norm(x.name), x.id]));
+        const ids = new Set(), unknown = [];
+        const take = (w) => { const id = byName.get(norm(w)); if (id) ids.add(id); return !!id; };
+        for (const tok of String(txt).split(/[,;&\n]+|\s+and\s+/i).map((s) => s.trim()).filter(Boolean)) {
+          if (take(tok)) continue;
+          // names like "16/34" match whole; only split on "/" or spaces if every part is a known line
+          const parts = tok.split(/\s*\/\s*|\s+/).filter(Boolean);
+          if (parts.length > 1 && parts.every((w) => byName.has(norm(w)))) parts.forEach(take);
+          else unknown.push(tok);
+        }
+        return { ids, unknown };
+      }
+      function finishConn(c, unknown) {
+        const r = quiz.corr;
+        const ok = c.size === r.size && [...c].every((x) => r.has(x)) && !unknown.length;
+        const nm = (id) => byId(id).name;
+        const missed = [...r].filter((x) => !c.has(x)).map(nm), extra = [...c].filter((x) => !r.has(x)).map(nm).concat(unknown);
+        quiz.fb = ok ? '✓ Correct' : `✗ ${missed.length ? 'Missed: ' + missed.join(', ') + '. ' : ''}${extra.length ? 'Not connected: ' + extra.join(', ') + '.' : ''}`;
+        quiz.checked = new Set(c);
+        quiz.opts = [...new Set([...quiz.opts, ...c])];
+        record(ok);
+        quiz.showIds = new Set([...r, ...c]);
+        finishAnswer();
+      }
+      function answerFind(id) {
+        const f = byId(quiz.cur), ok = id === f.id, g = byId(id);
+        record(ok);
+        quiz.fb = ok ? '✓ Correct' : `✗ That was “${(g && g.name) || 'unnamed'}”. The correct one is highlighted.`;
+        quiz.reveal = ok ? '#34d399' : '#fb7185';
+        quiz.focus = 'next';
+        finishAnswer();
+      }
+      const reviewLabel = (item) => {
+        const kind = typeof item === 'object' ? item.kind : quiz.roundKind, key = typeof item === 'object' ? item.key : item;
+        if (kind === 'name') {
+          const target = nameQuizTarget(key);
+          if (target && target.end) return `RWY ${esc(target.end.label)}`;
+          return esc((target && target.feature.name) || '');
+        }
+        return esc((byId(key) || {}).name);
+      };
+      function renderQuizSide() {
+        const a = $('side'), kind = QOPT.kind;
+        const typedOK = ['name', 'dims', 'conn', 'mixed'].includes(kind), typesOK = kind === 'mixed' || kind === 'name' || kind === 'find';
+        const pc = quiz && quiz.idle ? 0 : poolFor(kind).length;
+        const opts = `<div class="sec"><h3>Quiz</h3>
+    <label class="lab" for="qkindSel">Quiz type</label>
+    <select id="qkindSel" style="width:100%">${Object.entries(QKINDS).map(([k, v]) => `<option value="${k}" ${kind === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+    ${typedOK ? `<label class="quiz-toggle"><input type="checkbox" id="qtyped" ${QOPT.typed ? 'checked' : ''}><span><strong>Type your answer</strong><small>${kind === 'mixed' ? 'For questions with text answers' : 'Instead of multiple choice'}</small></span></label>` : ''}
+    ${typesOK ? `<div class="chips inline" role="group" aria-label="Include">${Object.keys(TYPES).filter((k) => k !== 'apron').map((k) => `<label class="chip"><input type="checkbox" data-ty="${k}" ${QOPT.types[k] ? 'checked' : ''}>${TYPES[k].label}</label>`).join('')}</div>` : ''}
+    <button class="btn primary" id="qstart" style="width:100%;margin-top:12px" ${poolFor(kind).length ? '' : 'disabled'}>${quiz && !quiz.idle ? 'Restart' : 'Start'} quiz</button></div>`;
+        let body = '';
+        if (quiz && quiz.idle) body = `<div class="sec"><div class="empty">${esc(quiz.msg)}</div></div>`;
+        else if (quiz && quiz.done) {
+          const pct = quiz.total ? Math.round((quiz.right / quiz.total) * 100) : 0;
+          body = `<div class="sec"><h3>Result</h3><div class="qbig">${quiz.right} / ${quiz.total} (${pct}%)</div>
+      ${quiz.missed.length
+        ? `<div class="q">Review these</div><div style="margin:6px 0 12px">${quiz.missed.map((item, i) => {
+          const kind = typeof item === 'object' ? item.kind : quiz.roundKind, key = typeof item === 'object' ? item.key : item;
+          const target = kind === 'name' ? nameQuizTarget(key) : null;
+          const id = target ? target.feature.id : key, f = byId(id);
+          return `<button type="button" class="item" data-miss="${i}">${!f ? '' : typeDot(f.type)}${reviewLabel(item)}</button>`;
+        }).join('')}</div>
+      <button class="btn primary" id="qretry" style="width:100%">Retry missed only</button>`
+        : '<div style="color:var(--ok);font-weight:700">Perfect round! 🎉</div>'}</div>`;
+        } else if (quiz && quiz.cur) {
+          const f = byId(quiz.cur), qn = `<div class="q">Question ${quiz.idx + (quiz.answered ? 0 : 1)} of ${quiz.total}${quiz.roundKind === 'mixed' ? ` · ${QKINDS[quiz.kind]}` : ''}</div>`;
+          let q = qn, choices = !!quiz.choices;
+          if (quiz.kind === 'name' && quiz.nameEnd) q += '<div class="qbig" tabindex="-1" id="qhead">What is the runway number at the highlighted end?</div>';
+          else if (quiz.kind === 'name') q += `<div class="qbig" tabindex="-1" id="qhead">What is the highlighted ${TYPES[f.type].label.toLowerCase()}?</div>`;
+          else if (quiz.kind === 'dims') q += `<div class="qbig" tabindex="-1" id="qhead">What are the dimensions of runway <b>${esc(f.name)}</b>?</div>`;
+          else if (quiz.kind === 'conn') q += `<div class="qbig" tabindex="-1" id="qhead">Which lines connect to <b>${esc(f.name)}</b>?</div><div class="q" style="margin:-6px 0 10px">${QOPT.typed ? 'Connected lines' : 'Tick all that apply'}</div>`;
+          else q += `<div class="q" style="margin-top:8px">Find the ${TYPES[f.type].label.toLowerCase()}</div><div class="qbig" id="qhead" tabindex="-1">${esc(f.name)}</div>`;
+          if (quiz.kind === 'conn' && QOPT.typed && !quiz.answered) {
+            q += `<label class="quiz-answer-label" for="typed">Type every connected line (${quiz.corr.size}), separated by commas</label><div class="quiz-answer"><input type="text" id="typed" placeholder="e.g. A, B" autocomplete="off"><button class="btn primary" id="tsubmit">Submit</button></div>`;
+          } else if (quiz.kind === 'conn') {
+            q += `<div class="opts" role="group" aria-label="Lines">${quiz.opts.filter((id) => !(QOPT.typed && !quiz.corr.has(id))).map((id, i) => {
+              const o = byId(id);
+              let cls = '';
+              if (quiz.answered) cls = quiz.corr.has(id) ? 'ok' : quiz.checked.has(id) ? 'bad' : '';
+              return `<label class="${cls}"><input type="checkbox" data-o="${id}" data-n="${i + 1}" ${quiz.checked.has(id) ? 'checked' : ''} ${quiz.answered ? 'disabled' : ''}><span class="kb" aria-hidden="true">${i + 1}</span>${esc(o.name)} <small class="muted">${TYPES[o.type].label}</small></label>`;
+            }).join('')}</div>`;
+            if (!quiz.answered) q += '<button class="btn primary" id="qcheck" style="width:100%;margin-top:10px">Check answer <kbd class="k">⏎</kbd></button>';
+          } else if (choices && QOPT.typed && quiz.kind !== 'find')
+            q += quiz.kind === 'dims'
+              ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" placeholder="Length" aria-label="Length in metres" autocomplete="off" ${quiz.answered ? 'disabled' : ''}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" placeholder="Width" aria-label="Width in metres" autocomplete="off" ${quiz.answered ? 'disabled' : ''}><button class="btn primary" id="tsubmit" ${quiz.answered ? 'disabled' : ''}>Submit</button></div>`
+              : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" placeholder="Type a name…" autocomplete="off" ${quiz.answered ? 'disabled' : ''}><button class="btn primary" id="tsubmit" ${quiz.answered ? 'disabled' : ''}>Submit</button></div>`;
+          else if (choices)
+            q += `<div class="choices" role="group" aria-label="Answers">${quiz.choices.map((c, i) => {
+              let cls = '';
+              if (quiz.answered) cls = c === quiz.correct ? 'ok' : c === quiz.picked ? 'bad' : '';
+              return `<button type="button" class="${cls}" data-c="${esc(c)}" data-n="${i + 1}" ${quiz.answered ? 'disabled' : ''}><span class="kb" aria-hidden="true">${i + 1}</span>${esc(c)}</button>`;
+            }).join('')}</div>`;
+          body = `<div class="sec"><div class="bar"><i style="width:${(quiz.idx / quiz.total) * 100}%"></i></div>
+      <div class="stats"><div><b>${quiz.right}</b><span>correct</span></div><div><b>${quiz.idx - quiz.right}</b><span>missed</span></div><div><b>${quiz.streak}</b><span>streak</span></div></div></div>
+      <div class="sec">${q}<div class="fb ${quiz.fbok ? 'ok' : 'bad'}">${esc(quiz.fb || '')}</div>
+      ${quiz.answered ? '<button class="btn primary" id="qnext" style="width:100%;margin-top:10px">Next <kbd class="k">⏎</kbd></button>' : ''}</div>`;
+        } else body = `<div class="sec"><div class="empty">${pc ? `Labels are hidden. Press Start to test your recall (${pc + ' question' + (pc === 1 ? '' : 's')}).` : esc(IDLE[kind])}</div></div>`;
+        a.innerHTML = opts + body;
+        $('qstart').onclick = startQuiz;
+        $('qkindSel').onchange = (e) => { QOPT.kind = e.target.value; quiz = null; renderSide(); render(); updateHint(); };
+        const qt = $('qtyped');
+        if (qt) qt.onchange = () => { QOPT.typed = qt.checked; quiz = null; renderSide(); render(); };
+        a.querySelectorAll('[data-ty]').forEach((c) => (c.onchange = () => { QOPT.types[c.dataset.ty] = c.checked; quiz = null; renderSide(); render(); }));
+        a.querySelectorAll('[data-c]').forEach((b) => (b.onclick = () => { quiz.picked = b.dataset.c; answerText(b.dataset.c); }));
+        a.querySelectorAll('[data-o]').forEach((c) => (c.onchange = () => {
+          if (c.checked) quiz.checked.add(c.dataset.o);
+          else quiz.checked.delete(c.dataset.o);
+        }));
+        const qc = $('qcheck');
+        if (qc) qc.onclick = answerConn;
+        const ts = $('tsubmit');
+        if (ts) {
+          ts.onclick = () => answerText(typedValue());
+          [$('typed'), $('typed2')].filter(Boolean).forEach((inp) => {
+            inp.onkeydown = (e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                typedEnter(inp);
+              }
+            };
+          });
+        }
+        const nx = $('qnext');
+        if (nx) nx.onclick = nextQ;
+        const rt = $('qretry');
+        if (rt) rt.onclick = () => beginRound(quiz.roundKind, shuffle(quiz.missed.slice()));
+        a.querySelectorAll('[data-miss]').forEach((i) => (i.onclick = () => {
+          const item = quiz.missed[+i.dataset.miss];
+          const kind = typeof item === 'object' ? item.kind : quiz.roundKind;
+          const key = typeof item === 'object' ? item.key : item;
+          quiz.kind = kind;
+          quiz.answered = true;
+          quiz.reveal = '#4cc9f0';
+          quiz.fbok = true;
+          quiz.nameEnd = null;
+          quiz.key = key;
+          quiz.done = false;
+          quiz.fb = 'Reviewing the correct answer';
+          quiz.focus = 'first';
+          {
+            const target = kind === 'name' ? nameQuizTarget(key) : null;
+            const f = target ? target.feature : byId(key);
+            quiz.cur = f ? f.id : key;
+            if (kind === 'name' && target) {
+              quiz.nameEnd = target.end;
+              quiz.correct = target.end ? target.end.label : f.name;
+              quiz.choices = nameChoices(target);
+            } else if (kind === 'dims' && f) {
+              quiz.correct = fmtDim(f.len, f.wid);
+              quiz.choices = dimChoices(f);
+            }
+            if (kind === 'conn') {
+              const o = connOptions(byId(key));
+              quiz.opts = o.opts; quiz.corr = o.right; quiz.checked = new Set(o.right);
+              quiz.showIds = new Set(o.right);
+            }
+          }
+          renderSide();
+          render();
+        }));
+        if (quiz && quiz.focus) {
+          const t = quiz.focus;
+          quiz.focus = null;
+          const target = t === 'next' ? $('qnext') : $('qhead') || $('typed');
+          if (target) target.focus({ preventScroll: true });
+          if (t === 'first' && $('typed')) $('typed').focus();
+        }
+      }
+
+      /* ---------- modes ---------- */
+      function setMode(m) {
+        cancelDraft();
+        mode = m;
+        sel = selV = hover = cursor = kb = null;
+        document.querySelectorAll('#tabs button').forEach((x) => {
+          const on = x.dataset.m === m;
+          x.classList.toggle('on', on);
+          x.setAttribute('aria-selected', on);
+          x.tabIndex = on ? 0 : -1;
+        });
+        $('tools').classList.toggle('hidden', m !== 'draw');
+        $('undo').classList.toggle('hidden', m !== 'draw');
+        $('redo').classList.toggle('hidden', m !== 'draw');
+        if (m === 'quiz') quiz = null;
+        svg.style.cursor = m === 'draw' ? (tool === 'select' ? '' : 'crosshair') : 'grab';
+        renderSide();
+        render();
+        updateHint();
+        announce(`${m[0].toUpperCase() + m.slice(1)} mode`);
+      }
+      const tabBtns = () => [...document.querySelectorAll('#tabs button')];
+      tabBtns().forEach((b) => {
+        b.onclick = () => setMode(b.dataset.m);
+        b.onkeydown = (e) => {
+          const v = tabBtns().filter((x) => x.offsetParent);
+          let i = v.indexOf(b);
+          if (e.key === 'ArrowRight') i = (i + 1) % v.length;
+          else if (e.key === 'ArrowLeft') i = (i - 1 + v.length) % v.length;
+          else if (e.key === 'Home') i = 0;
+          else if (e.key === 'End') i = v.length - 1;
+          else return;
+          e.preventDefault();
+          v[i].focus();
+          setMode(v[i].dataset.m);
+        };
+      });
+
+      addEventListener('resize', () => render());
+      renderTools();
+      renderSide();
+      updateHint();
+      requestAnimationFrame(fit);
+      initMaps();
+    </script>
+  </body>
+</html>
