@@ -473,9 +473,9 @@
       .row .u {
         color: var(--mut);
       }
-      input[type='text'],
-      input[type='number'],
-      input[type='search'] {
+      input[type="text"],
+      input[type="number"],
+      input[type="search"] {
         width: 100%;
         background: var(--bg);
         border: 1px solid var(--line);
@@ -483,9 +483,9 @@
         padding: 8px 10px;
         outline: none;
       }
-      input[type='text']:focus,
-      input[type='number']:focus,
-      input[type='search']:focus {
+      input[type="text"]:focus,
+      input[type="number"]:focus,
+      input[type="search"]:focus {
         border-color: var(--acc);
         box-shadow: 0 0 0 2px #4cc9f044;
       }
@@ -658,7 +658,7 @@
       .name-err:empty {
         display: none;
       }
-      #nameInput[aria-invalid='true'] {
+      #nameInput[aria-invalid="true"] {
         border-color: var(--bad);
       }
       .chips {
@@ -698,7 +698,7 @@
         color: var(--text, #e6edf3);
       }
       .chip:has(input:checked)::before {
-        content: '✓';
+        content: "✓";
         color: var(--acc);
         font-weight: 800;
       }
@@ -818,6 +818,21 @@
         color: var(--mut);
         font-size: 11px;
       }
+      .qfoot {
+        padding: 4px 16px 14px;
+      }
+      .qfoot.stuck {
+        position: sticky;
+        bottom: 0;
+        z-index: 5;
+        padding-top: 8px;
+        background: var(--panel);
+        border-top: 1px solid var(--line);
+        box-shadow: 0 -8px 12px -6px rgba(0, 0, 0, 0.45);
+      }
+      .qfoot .fb {
+        margin-top: 0;
+      }
       .fb {
         min-height: 22px;
         margin-top: 10px;
@@ -846,7 +861,7 @@
         display: none !important;
       }
       body.viewer .edit-only,
-      body.viewer [data-m='draw'],
+      body.viewer [data-m="draw"],
       body.viewer #undo,
       body.viewer #redo,
       body.viewer #tools,
@@ -1283,22 +1298,22 @@
     <div id="live" class="sr" aria-live="polite" role="status"></div>
 
     <script>
-      'use strict';
-      const NS = 'http://www.w3.org/2000/svg';
+      "use strict";
+      const NS = "http://www.w3.org/2000/svg";
       const TYPES = {
-        runway: { label: 'Runway', color: '#3b4452', line: true, w: 34 },
-        taxiway: { label: 'Taxiway', color: '#d8b84a', line: true, w: 14 },
-        apron: { label: 'Apron', color: '#5b6b82', line: false },
-        building: { label: 'Building', color: '#7c5cff', line: false },
-        point: { label: 'Point', color: '#4cc9f0', line: false, pt: true },
+        runway: { label: "Runway", color: "#3b4452", line: true, w: 34 },
+        taxiway: { label: "Taxiway", color: "#d8b84a", line: true, w: 14 },
+        apron: { label: "Apron", color: "#5b6b82", line: false },
+        building: { label: "Building", color: "#7c5cff", line: false },
+        point: { label: "Point", color: "#4cc9f0", line: false, pt: true },
       };
       const KEYS = {
-        select: 'V',
-        runway: 'R',
-        taxiway: 'T',
-        apron: 'A',
-        building: 'B',
-        point: 'P',
+        select: "V",
+        runway: "R",
+        taxiway: "T",
+        apron: "A",
+        building: "B",
+        point: "P",
       };
       const ICONS = {
         select: '<path d="M5 3l14 8-6 2-3 6z" fill="currentColor"/>',
@@ -1315,29 +1330,29 @@
       };
       const HINTS = {
         select:
-          'Click a shape to select · drag a white dot to reshape · drag a small ○ on an edge to add a bend · arrows nudge · Del removes',
+          "Click a shape to select · drag a white dot to reshape · drag a small ○ on an edge to add a bend · arrows nudge · Del removes",
         runway:
-          'Click to add points · green rings = join an existing line · Backspace undoes the last point · Enter finishes · Alt = no snap',
+          "Click to add points · green rings = join an existing line · Backspace undoes the last point · Enter finishes · Alt = no snap",
         taxiway:
-          'Click to add points · green rings = join an existing line · Backspace undoes the last point · Enter finishes · Alt = no snap',
+          "Click to add points · green rings = join an existing line · Backspace undoes the last point · Enter finishes · Alt = no snap",
         apron:
-          'Click the corners · click the first point to close · Backspace undoes the last point · Enter finishes',
+          "Click the corners · click the first point to close · Backspace undoes the last point · Enter finishes",
         building:
-          'Click the corners · click the first point to close · Backspace undoes the last point · Enter finishes',
-        point: 'Click to drop a marker (gate, tower, hold point…)',
+          "Click the corners · click the first point to close · Backspace undoes the last point · Enter finishes",
+        point: "Click to drop a marker (gate, tower, hold point…)",
       };
       const QKINDS = {
-        mixed: 'Mixed (all types)',
-        name: 'What is this?',
-        find: 'Find it on the map',
-        dims: 'Runway dimensions',
-        conn: 'What connects to what?',
+        mixed: "Mixed (all types)",
+        name: "What is this?",
+        find: "Find it on the map",
+        dims: "Runway dimensions",
+        conn: "What connects to what?",
       };
 
       let S = { features: [] };
-      let mode = 'draw',
-        tool = 'select';
-      let gridSnap = localStorage.getItem('aerodrome-grid') !== '0';
+      let mode = "draw",
+        tool = "select";
+      let gridSnap = localStorage.getItem("aerodrome-grid") !== "0";
       let sel = null,
         selV = null,
         draft = null,
@@ -1355,15 +1370,15 @@
         lastVtx = null;
 
       const $ = (id) => document.getElementById(id);
-      const svg = $('map');
+      const svg = $("map");
       const uid = () => Math.random().toString(36).slice(2, 9);
       const byId = (id) => S.features.find((f) => f.id === id);
       const isLine = (f) => TYPES[f.type].line;
-      const named = (f) => f.type !== 'apron' && !!(f.name && f.name.trim());
+      const named = (f) => f.type !== "apron" && !!(f.name && f.name.trim());
       const esc = (s) =>
-        String(s == null ? '' : s).replace(
+        String(s == null ? "" : s).replace(
           /[&<>"]/g,
-          (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c],
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
         );
       const el = (n, a = {}, p) => {
         const e = document.createElementNS(NS, n);
@@ -1374,8 +1389,8 @@
       let liveT = null;
       function announce(t) {
         clearTimeout(liveT);
-        $('live').textContent = '';
-        liveT = setTimeout(() => ($('live').textContent = t), 60);
+        $("live").textContent = "";
+        liveT = setTimeout(() => ($("live").textContent = t), 60);
       }
 
       /* ---------- maps: stored as maps/<name>.json ---------- */
@@ -1383,48 +1398,48 @@
         curMap = null,
         mapNames = [],
         saveTimer = null;
-      const LAST = 'aerodrome-last-map';
+      const LAST = "aerodrome-last-map";
       function setStatus(t, color) {
-        const s = $('status');
-        s.className = 'pill';
-        s.style.setProperty('--c', color || 'var(--mut)');
-        s.innerHTML = '<i></i><b></b>';
+        const s = $("status");
+        s.className = "pill";
+        s.style.setProperty("--c", color || "var(--mut)");
+        s.innerHTML = "<i></i><b></b>";
         s.lastChild.textContent = t
-          .replace(/^[✓✗]\s*/, '')
-          .replace(/^Auto-saves to .*/, 'Auto-save on')
-          .replace(/^Saved to .*/, 'Saved')
-          .replace(/^Save failed.*/, 'Save failed');
-        s.title = t.replace(/^[✓✗]\s*/, '');
+          .replace(/^[✓✗]\s*/, "")
+          .replace(/^Auto-saves to .*/, "Auto-save on")
+          .replace(/^Saved to .*/, "Saved")
+          .replace(/^Save failed.*/, "Save failed");
+        s.title = t.replace(/^[✓✗]\s*/, "");
       }
       function save() {
         if (!EDIT || !curMap) return;
         clearTimeout(saveTimer);
-        setStatus('Saving…', '#fbbf24');
+        setStatus("Saving…", "#fbbf24");
         saveTimer = setTimeout(async () => {
           try {
-            const r = await fetch('/api/maps/' + encodeURIComponent(curMap), {
-              method: 'PUT',
+            const r = await fetch("/api/maps/" + encodeURIComponent(curMap), {
+              method: "PUT",
               body: JSON.stringify(S),
             });
             if (!r.ok) throw 0;
-            setStatus('✓ Saved to maps/' + curMap + '.json', '#34d399');
+            setStatus("✓ Saved to maps/" + curMap + ".json", "#34d399");
           } catch (e) {
-            setStatus('✗ Save failed – is server.py running?', '#fb7185');
+            setStatus("✗ Save failed – is server.py running?", "#fb7185");
           }
         }, 300);
       }
       async function fetchNames() {
-        const r = await fetch(EDIT ? '/api/maps' : 'maps/index.json', {
-          cache: 'no-store',
+        const r = await fetch(EDIT ? "/api/maps" : "maps/index.json", {
+          cache: "no-store",
         });
         mapNames = r.ok ? await r.json() : [];
       }
       function fillMapSelect() {
-        const s = $('mapSel');
+        const s = $("mapSel");
         s.innerHTML =
           mapNames
             .map((n) => `<option value="${esc(n)}">${esc(n)}</option>`)
-            .join('') || '<option value="">(no maps)</option>';
+            .join("") || '<option value="">(no maps)</option>';
         if (curMap) s.value = curMap;
       }
       async function openMap(name) {
@@ -1435,8 +1450,8 @@
         draft = null;
         undoStack.length = redoStack.length = 0;
         try {
-          const r = await fetch('maps/' + encodeURIComponent(name) + '.json', {
-            cache: 'no-store',
+          const r = await fetch("maps/" + encodeURIComponent(name) + ".json", {
+            cache: "no-store",
           });
           const d = r.ok ? await r.json() : null;
           S = d && Array.isArray(d.features) ? d : { features: [] };
@@ -1448,19 +1463,19 @@
         fit();
         renderSide();
         if (EDIT)
-          setStatus('✓ Auto-saves to maps/' + name + '.json', '#34d399');
+          setStatus("✓ Auto-saves to maps/" + name + ".json", "#34d399");
       }
       async function initMaps() {
         try {
-          EDIT = (await fetch('/api/ping', { cache: 'no-store' })).ok;
+          EDIT = (await fetch("/api/ping", { cache: "no-store" })).ok;
         } catch (e) {
           EDIT = false;
         }
         EDIT =
           EDIT &&
-          ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname);
-        document.body.classList.toggle('viewer', !EDIT);
-        if (!EDIT) setMode('study');
+          ["localhost", "127.0.0.1", "[::1]"].includes(location.hostname);
+        document.body.classList.toggle("viewer", !EDIT);
+        if (!EDIT) setMode("study");
         try {
           await fetchNames();
         } catch (e) {
@@ -1471,8 +1486,8 @@
           await openMap(mapNames.includes(last) ? last : mapNames[0]);
         else {
           fillMapSelect();
-          if (EDIT) await newMap('My Airport');
-          else setStatus('No maps published yet');
+          if (EDIT) await newMap("My Airport");
+          else setStatus("No maps published yet");
         }
         renderTools();
         renderSide();
@@ -1482,36 +1497,36 @@
         title,
         text,
         input,
-        ok = 'OK',
+        ok = "OK",
         danger,
         html,
         cancel = true,
       }) {
         return new Promise((res) => {
           const prev = document.activeElement;
-          const o = document.createElement('div');
-          o.className = 'modal';
-          o.innerHTML = `<form role="dialog" aria-modal="true" aria-labelledby="dlgT"><h4 id="dlgT"></h4><p></p><div class="dbody"></div>${input !== undefined ? '<input type="text" maxlength="60" autocomplete="off" aria-labelledby="dlgT">' : ''}<div class="acts">${cancel ? '<button type="button" class="btn" data-x>Cancel</button>' : ''}<button type="submit" class="btn ${danger ? 'danger solid' : 'primary'}"></button></div></form>`;
-          o.querySelector('h4').textContent = title;
-          o.querySelector('p').textContent = text || '';
-          if (html) o.querySelector('.dbody').innerHTML = html;
-          o.querySelector('[type=submit]').textContent = ok;
-          const inp = o.querySelector('input');
+          const o = document.createElement("div");
+          o.className = "modal";
+          o.innerHTML = `<form role="dialog" aria-modal="true" aria-labelledby="dlgT"><h4 id="dlgT"></h4><p></p><div class="dbody"></div>${input !== undefined ? '<input type="text" maxlength="60" autocomplete="off" aria-labelledby="dlgT">' : ""}<div class="acts">${cancel ? '<button type="button" class="btn" data-x>Cancel</button>' : ""}<button type="submit" class="btn ${danger ? "danger solid" : "primary"}"></button></div></form>`;
+          o.querySelector("h4").textContent = title;
+          o.querySelector("p").textContent = text || "";
+          if (html) o.querySelector(".dbody").innerHTML = html;
+          o.querySelector("[type=submit]").textContent = ok;
+          const inp = o.querySelector("input");
           if (inp) inp.value = input;
           const close = (v) => {
             o.remove();
             if (prev && prev.focus) prev.focus();
             res(v);
           };
-          const x = o.querySelector('[data-x]');
+          const x = o.querySelector("[data-x]");
           if (x) x.onclick = () => close(null);
           o.onmousedown = (e) => {
             if (e.target === o) close(cancel ? null : true);
           };
           o.onkeydown = (e) => {
-            if (e.key === 'Escape') close(cancel ? null : true);
-            if (e.key === 'Tab') {
-              const f = [...o.querySelectorAll('input,button')].filter(
+            if (e.key === "Escape") close(cancel ? null : true);
+            if (e.key === "Tab") {
+              const f = [...o.querySelectorAll("input,button")].filter(
                 (n) => !n.disabled,
               );
               const first = f[0],
@@ -1526,29 +1541,29 @@
             }
             e.stopPropagation();
           };
-          o.querySelector('form').onsubmit = (e) => {
+          o.querySelector("form").onsubmit = (e) => {
             e.preventDefault();
             close(inp ? inp.value : true);
           };
           document.body.appendChild(o);
-          (inp || o.querySelector('[type=submit]')).focus();
+          (inp || o.querySelector("[type=submit]")).focus();
           if (inp) inp.select();
         });
       }
       const cleanName = (n) =>
-        (n || '')
+        (n || "")
           .trim()
-          .replace(/[^\w \-.]/g, '')
+          .replace(/[^\w \-.]/g, "")
           .slice(0, 60);
       async function newMap(preset) {
         let n = preset;
         for (;;) {
           if (!preset) {
             n = await dialog({
-              title: 'New aerodrome',
-              text: 'Name it, e.g. YSSY',
-              input: '',
-              ok: 'Create',
+              title: "New aerodrome",
+              text: "Name it, e.g. YSSY",
+              input: "",
+              ok: "Create",
             });
             if (n === null) return;
           }
@@ -1560,19 +1575,19 @@
           if (!mapNames.includes(n)) break;
           if (preset) return;
           await dialog({
-            title: 'Name already used',
+            title: "Name already used",
             text: `"${n}" already exists.`,
             cancel: false,
           });
         }
-        const r = await fetch('/api/maps/' + encodeURIComponent(n), {
-          method: 'PUT',
+        const r = await fetch("/api/maps/" + encodeURIComponent(n), {
+          method: "PUT",
           body: JSON.stringify({ features: [] }),
         });
         if (!r.ok) {
           await dialog({
-            title: 'Error',
-            text: 'Could not create map.',
+            title: "Error",
+            text: "Could not create map.",
             cancel: false,
           });
           return;
@@ -1585,28 +1600,28 @@
         let n = curMap;
         for (;;) {
           n = await dialog({
-            title: 'Rename aerodrome',
+            title: "Rename aerodrome",
             input: n,
-            ok: 'Rename',
+            ok: "Rename",
           });
           if (n === null) return;
           n = cleanName(n);
           if (!n || n === curMap) return;
           if (!mapNames.includes(n)) break;
           await dialog({
-            title: 'Name already used',
+            title: "Name already used",
             text: `"${n}" already exists.`,
             cancel: false,
           });
         }
-        const r = await fetch('/api/rename/' + encodeURIComponent(curMap), {
-          method: 'POST',
+        const r = await fetch("/api/rename/" + encodeURIComponent(curMap), {
+          method: "POST",
           body: JSON.stringify({ to: n }),
         });
         if (!r.ok) {
           await dialog({
-            title: 'Error',
-            text: 'Could not rename map.',
+            title: "Error",
+            text: "Could not rename map.",
             cancel: false,
           });
           return;
@@ -1619,19 +1634,19 @@
         const ok = await dialog({
           title: `Delete "${curMap}"?`,
           text: `This permanently removes maps/${curMap}.json.`,
-          ok: 'Delete',
+          ok: "Delete",
           danger: true,
         });
         if (!ok) return;
-        await fetch('/api/maps/' + encodeURIComponent(curMap), {
-          method: 'DELETE',
+        await fetch("/api/maps/" + encodeURIComponent(curMap), {
+          method: "DELETE",
         });
         await fetchNames();
         if (mapNames.length) await openMap(mapNames[0]);
         else {
           S = { features: [] };
           curMap = null;
-          await newMap('My Airport');
+          await newMap("My Airport");
         }
       }
 
@@ -1660,7 +1675,7 @@
         S = JSON.parse(s);
         if (!byId(sel)) sel = selV = null;
         commit();
-        announce('Undone');
+        announce("Undone");
       }
       function redo() {
         const s = redoStack.pop();
@@ -1669,7 +1684,7 @@
         S = JSON.parse(s);
         if (!byId(sel)) sel = selV = null;
         commit();
-        announce('Redone');
+        announce("Redone");
       }
 
       /* ---------- geometry ---------- */
@@ -1746,7 +1761,7 @@
         pts.reduce((s, p, i) => (i ? s + dist(pts[i - 1], p) : 0), 0);
 
       function snapPoint(p, ignore, o = {}) {
-        if (o.free) return { x: p.x, y: p.y, kind: 'free' };
+        if (o.free) return { x: p.x, y: p.y, kind: "free" };
         const s = scale(),
           r = 12 / s;
         let best = null,
@@ -1755,7 +1770,7 @@
           const d = dist(p, q);
           if (d < bd) {
             bd = d;
-            best = { x: q.x, y: q.y, kind: 'own', idx: i };
+            best = { x: q.x, y: q.y, kind: "own", idx: i };
           }
         });
         for (const f of S.features) {
@@ -1767,14 +1782,14 @@
               best = {
                 x: q.x,
                 y: q.y,
-                kind: 'vertex',
+                kind: "vertex",
                 ref: f,
                 end: i === 0 || i === f.pts.length - 1,
               };
             }
           });
         }
-        if (best && best.kind === 'own') return { ...best, snapped: true };
+        if (best && best.kind === "own") return { ...best, snapped: true };
         if (!best) {
           bd = 10 / s;
           for (const f of S.features) {
@@ -1784,7 +1799,7 @@
                 d = dist(p, q);
               if (d < bd) {
                 bd = d;
-                best = { x: q.x, y: q.y, kind: 'line', ref: f };
+                best = { x: q.x, y: q.y, kind: "line", ref: f };
               }
             }
           }
@@ -1794,29 +1809,29 @@
           const grid = {
             x: Math.round(p.x / g) * g,
             y: Math.round(p.y / g) * g,
-            kind: 'grid',
+            kind: "grid",
           };
           if (best) {
             const target =
-              best.kind === 'line' ? nearPoly(grid, best.ref.pts).q : best;
+              best.kind === "line" ? nearPoly(grid, best.ref.pts).q : best;
             if (dist(grid, target) <= TOL)
               return { ...grid, snapped: true, join: best };
           }
           return grid;
         }
         if (best) return { ...best, snapped: true };
-        return { x: p.x, y: p.y, kind: 'free' };
+        return { x: p.x, y: p.y, kind: "free" };
       }
       function snapTag(c) {
         const nm = (f) => f.name || TYPES[f.type].label.toLowerCase();
         if (c.join) return `Join ${nm(c.join.ref)}`;
-        if (c.kind === 'vertex' || c.kind === 'line')
+        if (c.kind === "vertex" || c.kind === "line")
           return `Join ${nm(c.ref)}`;
-        if (c.kind === 'own')
+        if (c.kind === "own")
           return c.idx === 0 && draft && !TYPES[draft.type].line
-            ? 'Click to close shape'
-            : 'Same point';
-        return '';
+            ? "Click to close shape"
+            : "Same point";
+        return "";
       }
       function constrain(a, w) {
         const dx = w.x - a.x,
@@ -1827,7 +1842,7 @@
         return {
           x: a.x + Math.cos(ang) * len,
           y: a.y + Math.sin(ang) * len,
-          kind: 'angle',
+          kind: "angle",
         };
       }
       function bbox(pts) {
@@ -1886,13 +1901,13 @@
           y: f.pts.reduce((s, p) => s + p.y, 0) / n,
         };
       }
-      const ptsStr = (pts) => pts.map((p) => p.x + ',' + p.y).join(' ');
+      const ptsStr = (pts) => pts.map((p) => p.x + "," + p.y).join(" ");
 
       // Runway designators placed at the correct physical ends (e.g. 09/27 -> 09 at the west end).
       function runwayEnds(f) {
-        if (f.type !== 'runway' || f.pts.length < 2 || !f.name) return null;
+        if (f.type !== "runway" || f.pts.length < 2 || !f.name) return null;
         const m = f.name
-          .split('/')
+          .split("/")
           .map((x) => x.trim())
           .filter(Boolean);
         if (m.length !== 2) return null;
@@ -1922,28 +1937,28 @@
       function drawFeature(f, g, k) {
         const T = TYPES[f.type],
           d = ptsStr(f.pts),
-          attr = { 'data-id': f.id };
+          attr = { "data-id": f.id };
         if (T.pt) {
           el(
-            'circle',
+            "circle",
             {
               cx: f.pts[0].x,
               cy: f.pts[0].y,
               r: 4.5 * k,
               fill: T.color,
-              stroke: '#fff',
-              'stroke-width': 1.5 * k,
+              stroke: "#fff",
+              "stroke-width": 1.5 * k,
               ...attr,
             },
             g,
           );
           el(
-            'circle',
+            "circle",
             {
               cx: f.pts[0].x,
               cy: f.pts[0].y,
               r: 14 * k,
-              fill: 'transparent',
+              fill: "transparent",
               ...attr,
             },
             g,
@@ -1951,54 +1966,54 @@
         } else if (T.line) {
           const base = {
             points: d,
-            fill: 'none',
-            'stroke-linecap': 'round',
-            'stroke-linejoin': 'round',
+            fill: "none",
+            "stroke-linecap": "round",
+            "stroke-linejoin": "round",
             ...attr,
           };
           el(
-            'polyline',
+            "polyline",
             {
               ...base,
-              stroke: f.type === 'runway' ? '#aab4c3' : '#8c7424',
-              'stroke-width': T.w + 4,
+              stroke: f.type === "runway" ? "#aab4c3" : "#8c7424",
+              "stroke-width": T.w + 4,
             },
             g,
           );
-          el('polyline', { ...base, stroke: T.color, 'stroke-width': T.w }, g);
-          if (f.type === 'runway')
+          el("polyline", { ...base, stroke: T.color, "stroke-width": T.w }, g);
+          if (f.type === "runway")
             el(
-              'polyline',
+              "polyline",
               {
                 ...base,
-                stroke: '#fff',
-                'stroke-width': 2,
-                'stroke-dasharray': '14 12',
-                'stroke-linecap': 'butt',
+                stroke: "#fff",
+                "stroke-width": 2,
+                "stroke-dasharray": "14 12",
+                "stroke-linecap": "butt",
                 opacity: 0.85,
               },
               g,
             );
           el(
-            'polyline',
+            "polyline",
             {
               ...base,
-              stroke: 'transparent',
-              'stroke-width': Math.max(T.w + 10, 28),
+              stroke: "transparent",
+              "stroke-width": Math.max(T.w + 10, 28),
             },
             g,
           );
         } else {
-          const fill = f.type === 'apron' ? '#5b6b82' : '#7c5cff';
+          const fill = f.type === "apron" ? "#5b6b82" : "#7c5cff";
           el(
-            'polygon',
+            "polygon",
             {
               points: d,
               fill,
-              'fill-opacity': f.type === 'apron' ? 0.55 : 0.7,
+              "fill-opacity": f.type === "apron" ? 0.55 : 0.7,
               stroke: fill,
-              'stroke-width': 2.5,
-              'stroke-linejoin': 'round',
+              "stroke-width": 2.5,
+              "stroke-linejoin": "round",
               ...attr,
             },
             g,
@@ -2006,7 +2021,7 @@
         }
       }
       function highlight(f, color, pulse, soft, strong) {
-        const g = el('g', { 'pointer-events': 'none' }, $('hl'));
+        const g = el("g", { "pointer-events": "none" }, $("hl"));
         const T = TYPES[f.type],
           d = ptsStr(f.pts),
           k = 1 / scale();
@@ -2014,40 +2029,40 @@
           // white halo and a full-brightness redraw lift the target above the dimmed map
           if (T.pt)
             el(
-              'circle',
+              "circle",
               {
                 cx: f.pts[0].x,
                 cy: f.pts[0].y,
                 r: 19 * k,
-                fill: 'none',
-                stroke: '#fff',
-                'stroke-width': 3 * k,
+                fill: "none",
+                stroke: "#fff",
+                "stroke-width": 3 * k,
               },
               g,
             );
           else if (T.line)
             el(
-              'polyline',
+              "polyline",
               {
                 points: d,
-                fill: 'none',
-                stroke: '#fff',
-                'stroke-width': T.w + 22,
-                'stroke-linecap': 'round',
-                'stroke-linejoin': 'round',
+                fill: "none",
+                stroke: "#fff",
+                "stroke-width": T.w + 22,
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
                 opacity: 0.9,
               },
               g,
             );
           else
             el(
-              'polygon',
+              "polygon",
               {
                 points: d,
-                fill: 'none',
-                stroke: '#fff',
-                'stroke-width': 9,
-                'stroke-linejoin': 'round',
+                fill: "none",
+                stroke: "#fff",
+                "stroke-width": 9,
+                "stroke-linejoin": "round",
               },
               g,
             );
@@ -2056,46 +2071,46 @@
         let e;
         if (T.pt)
           e = el(
-            'circle',
+            "circle",
             {
               cx: f.pts[0].x,
               cy: f.pts[0].y,
               r: 13 * k,
-              fill: 'none',
+              fill: "none",
               stroke: color,
-              'stroke-width': 3.5 * k,
+              "stroke-width": 3.5 * k,
               opacity: soft ? 0.7 : 1,
             },
             g,
           );
         else if (T.line)
           e = el(
-            'polyline',
+            "polyline",
             {
               points: d,
-              fill: 'none',
+              fill: "none",
               stroke: color,
-              'stroke-width': T.w + 12,
-              'stroke-linecap': 'round',
-              'stroke-linejoin': 'round',
+              "stroke-width": T.w + 12,
+              "stroke-linecap": "round",
+              "stroke-linejoin": "round",
               opacity: soft ? 0.35 : strong ? 0.45 : 0.6,
             },
             g,
           );
         else
           e = el(
-            'polygon',
+            "polygon",
             {
               points: d,
               fill: color,
-              'fill-opacity': soft ? 0.15 : 0.25,
+              "fill-opacity": soft ? 0.15 : 0.25,
               stroke: color,
-              'stroke-width': 5,
-              'stroke-linejoin': 'round',
+              "stroke-width": 5,
+              "stroke-linejoin": "round",
             },
             g,
           );
-        if (pulse) e.setAttribute('class', 'pulse');
+        if (pulse) e.setAttribute("class", "pulse");
       }
       const findable = (id) => {
         const g = byId(id),
@@ -2104,7 +2119,7 @@
       };
       // In a find quiz, look through anything stacked on top (e.g. gate points) for a feature of the right type.
       const hitTarget = (ev) => {
-        if (mode === 'quiz' && quiz && quiz.kind === 'find' && !quiz.answered) {
+        if (mode === "quiz" && quiz && quiz.kind === "find" && !quiz.answered) {
           const hit = document
             .elementsFromPoint(ev.clientX, ev.clientY)
             .find(
@@ -2122,92 +2137,92 @@
         hover &&
         !drag &&
         !panning &&
-        (mode === 'study' ||
-          (mode === 'quiz' &&
+        (mode === "study" ||
+          (mode === "quiz" &&
             quiz &&
-            quiz.kind === 'find' &&
+            quiz.kind === "find" &&
             !quiz.answered &&
             findable(hover)) ||
-          (mode === 'draw' && tool === 'select'));
+          (mode === "draw" && tool === "select"));
 
       function render() {
         const s = scale(),
           k = 1 / s;
-        svg.innerHTML = '';
-        svg.setAttribute('viewBox', `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
-        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-        $('undo').disabled = !(undoStack.length || draft);
-        $('redo').disabled = !redoStack.length;
-        $('draftbar').classList.toggle('hidden', !draft);
+        svg.innerHTML = "";
+        svg.setAttribute("viewBox", `${vb.x} ${vb.y} ${vb.w} ${vb.h}`);
+        svg.setAttribute("preserveAspectRatio", "xMidYMid meet");
+        $("undo").disabled = !(undoStack.length || draft);
+        $("redo").disabled = !redoStack.length;
+        $("draftbar").classList.toggle("hidden", !draft);
         if (draft) {
           const min = TYPES[draft.type].line ? 2 : 3;
-          $('dcount').textContent =
-            `${TYPES[draft.type].label} · ${draft.pts.length} point${draft.pts.length === 1 ? '' : 's'}`;
-          $('dfinish').disabled = draft.pts.length < min;
-          $('dundo').disabled = !draft.pts.length;
+          $("dcount").textContent =
+            `${TYPES[draft.type].label} · ${draft.pts.length} point${draft.pts.length === 1 ? "" : "s"}`;
+          $("dfinish").disabled = draft.pts.length < min;
+          $("dundo").disabled = !draft.pts.length;
         }
         const g = gridStep();
-        const defs = el('defs', {}, svg);
+        const defs = el("defs", {}, svg);
         const p1 = el(
-          'pattern',
-          { id: 'grid', width: g, height: g, patternUnits: 'userSpaceOnUse' },
+          "pattern",
+          { id: "grid", width: g, height: g, patternUnits: "userSpaceOnUse" },
           defs,
         );
         el(
-          'path',
+          "path",
           {
             d: `M${g} 0H0V${g}`,
-            fill: 'none',
-            stroke: '#243850',
-            'stroke-width': 1.1 * k,
+            fill: "none",
+            stroke: "#243850",
+            "stroke-width": 1.1 * k,
           },
           p1,
         );
         const p5 = el(
-          'pattern',
+          "pattern",
           {
-            id: 'grid5',
+            id: "grid5",
             width: g * 5,
             height: g * 5,
-            patternUnits: 'userSpaceOnUse',
+            patternUnits: "userSpaceOnUse",
           },
           defs,
         );
         el(
-          'path',
+          "path",
           {
             d: `M${g * 5} 0H0V${g * 5}`,
-            fill: 'none',
-            stroke: '#3a5675',
-            'stroke-width': 1.4 * k,
+            fill: "none",
+            stroke: "#3a5675",
+            "stroke-width": 1.4 * k,
           },
           p5,
         );
         const big = 20000;
-        for (const id of ['grid', 'grid5'])
+        for (const id of ["grid", "grid5"])
           el(
-            'rect',
+            "rect",
             {
               x: -big,
               y: -big,
               width: big * 2,
               height: big * 2,
               fill: `url(#${id})`,
-              'data-bg': 1,
+              "data-bg": 1,
             },
             svg,
           );
         const focusQ =
-          mode === 'quiz' &&
+          mode === "quiz" &&
           quiz &&
           quiz.cur &&
           !quiz.answered &&
-          ['name', 'dims', 'conn'].includes(quiz.kind);
+          ["name", "dims", "conn"].includes(quiz.kind);
         const gMain = el(
-          'g',
+          "g",
           {
             opacity:
-              mode === 'quiz' && quiz && quiz.answered
+              mode === "quiz" && quiz && quiz.answered
                 ? 0.25
                 : focusQ
                   ? 0.4
@@ -2215,34 +2230,34 @@
           },
           svg,
         );
-        el('g', { id: 'hl' }, svg);
-        const gLbl = el('g', {}, svg);
-        const gUI = el('g', {}, svg);
-        for (const t of ['apron', 'building', 'taxiway', 'runway', 'point'])
+        el("g", { id: "hl" }, svg);
+        const gLbl = el("g", {}, svg);
+        const gUI = el("g", {}, svg);
+        for (const t of ["apron", "building", "taxiway", "runway", "point"])
           for (const f of S.features.filter((x) => x.type === t))
             drawFeature(f, gMain, k);
 
         // highlights
         if (hoverOK() && byId(hover))
-          highlight(byId(hover), '#f0f4ff', false, true);
+          highlight(byId(hover), "#f0f4ff", false, true);
         quizHighlights(gUI, k);
-        if (mode !== 'quiz' && sel && byId(sel))
-          highlight(byId(sel), '#4cc9f0', false);
+        if (mode !== "quiz" && sel && byId(sel))
+          highlight(byId(sel), "#4cc9f0", false);
 
         // labels (points are screen-sized and decluttered so close-together gates stay readable)
-        const showAll = mode === 'draw' || (mode === 'study' && labelsOn);
+        const showAll = mode === "draw" || (mode === "study" && labelsOn);
         const reveal = (f) =>
-          mode === 'quiz' &&
+          mode === "quiz" &&
           quiz &&
           quiz.answered &&
           (quiz.cur === f.id || (quiz.showIds && quiz.showIds.has(f.id)));
         const nameEnd =
-          mode === 'quiz' &&
+          mode === "quiz" &&
           quiz &&
-          quiz.kind === 'name' &&
+          quiz.kind === "name" &&
           quiz.nameEnd &&
           byId(quiz.cur) &&
-          byId(quiz.cur).type === 'runway'
+          byId(quiz.cur).type === "runway"
             ? { feature: byId(quiz.cur), end: quiz.nameEnd }
             : null;
         const placed = [];
@@ -2263,14 +2278,14 @@
         const addLabel = (f, fs) => {
           const c = centroid(f);
           const lx = c.x,
-            ly = c.y + (f.type === 'point' ? -12 * k : 0);
+            ly = c.y + (f.type === "point" ? -12 * k : 0);
           const t = el(
-            'text',
-            { x: lx, y: ly, 'font-size': fs, class: 'lbl' },
+            "text",
+            { x: lx, y: ly, "font-size": fs, class: "lbl" },
             gLbl,
           );
-          if (f.type === 'point') {
-            t.setAttribute('stroke-width', 3 * k);
+          if (f.type === "point") {
+            t.setAttribute("stroke-width", 3 * k);
           }
           t.textContent = f.name;
           return box(lx, ly, f.name, fs);
@@ -2279,10 +2294,10 @@
           (f) => named(f) && (showAll || reveal(f)),
         );
         for (const f of vis.filter(
-          (x) => x.type !== 'point' && !(nameEnd && nameEnd.feature === x),
+          (x) => x.type !== "point" && !(nameEnd && nameEnd.feature === x),
         ))
           placed.push(addLabel(f, 20));
-        const pts = vis.filter((x) => x.type === 'point');
+        const pts = vis.filter((x) => x.type === "point");
         const forced = (f) => reveal(f) || f.id === sel || f.id === hover;
         pts.sort((a, b) => forced(b) - forced(a));
         for (const f of pts) {
@@ -2293,13 +2308,13 @@
           placed.push(addLabel(f, fs));
         }
         // runway end designators
-        for (const f of S.features.filter((x) => x.type === 'runway')) {
+        for (const f of S.features.filter((x) => x.type === "runway")) {
           const ends = runwayEnds(f);
           if (!ends) continue;
           if (!(showAll || reveal(f))) continue;
           for (const e of ends) {
             if (
-              mode === 'quiz' &&
+              mode === "quiz" &&
               nameEnd &&
               nameEnd.feature === f &&
               nameEnd.end.idx !== e.idx
@@ -2311,57 +2326,57 @@
             const x = e.pt.x + ux * 38,
               y = e.pt.y + uy * 38;
             const t = el(
-              'text',
+              "text",
               {
                 x,
                 y,
-                'font-size': 20,
-                class: 'lbl',
+                "font-size": 20,
+                class: "lbl",
                 transform: `rotate(${(Math.atan2(uy, ux) * 180) / Math.PI + 90} ${x} ${y})`,
               },
               gLbl,
             );
-            t.setAttribute('stroke-width', 3);
+            t.setAttribute("stroke-width", 3);
             t.textContent = e.label;
           }
         }
 
         // anchor markers: make join points obvious while drawing lines
         const lineTool =
-          mode === 'draw' && (tool === 'runway' || tool === 'taxiway');
-        if (lineTool || (drag && drag.kind === 'vertex' && isLine(drag.f))) {
+          mode === "draw" && (tool === "runway" || tool === "taxiway");
+        if (lineTool || (drag && drag.kind === "vertex" && isLine(drag.f))) {
           for (const f of S.features.filter(
             (x) => isLine(x) && x !== (drag && drag.f),
           ))
             for (const q of [f.pts[0], f.pts[f.pts.length - 1]]) {
               el(
-                'circle',
+                "circle",
                 {
                   cx: q.x,
                   cy: q.y,
                   r: 7 * k,
-                  fill: '#34d39922',
-                  stroke: '#34d399',
-                  'stroke-width': 2 * k,
-                  'pointer-events': 'none',
+                  fill: "#34d39922",
+                  stroke: "#34d399",
+                  "stroke-width": 2 * k,
+                  "pointer-events": "none",
                 },
                 gUI,
               );
               el(
-                'circle',
+                "circle",
                 {
                   cx: q.x,
                   cy: q.y,
                   r: 2 * k,
-                  fill: '#34d399',
-                  'pointer-events': 'none',
+                  fill: "#34d399",
+                  "pointer-events": "none",
                 },
                 gUI,
               );
             }
         }
         // selection handles
-        const f = mode === 'draw' && tool === 'select' ? byId(sel) : null;
+        const f = mode === "draw" && tool === "select" ? byId(sel) : null;
         if (f) {
           const T = TYPES[f.type],
             n = f.pts.length;
@@ -2369,15 +2384,15 @@
             for (const nb of neighbours(f)) {
               const j = junction(f, nb);
               el(
-                'circle',
+                "circle",
                 {
                   cx: j.x,
                   cy: j.y,
                   r: 11 * k,
-                  fill: 'none',
-                  stroke: '#fbbf24',
-                  'stroke-width': 2.5 * k,
-                  'pointer-events': 'none',
+                  fill: "none",
+                  stroke: "#fbbf24",
+                  "stroke-width": 2.5 * k,
+                  "pointer-events": "none",
                 },
                 gUI,
               );
@@ -2390,42 +2405,42 @@
               const mp = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
               if (dist(a, b) * s < 28) continue;
               el(
-                'circle',
+                "circle",
                 {
                   cx: mp.x,
                   cy: mp.y,
                   r: 5 * k,
-                  fill: '#0b1016',
-                  stroke: '#4cc9f0',
-                  'stroke-width': 1.8 * k,
-                  'data-mid': i,
-                  style: 'cursor:grab',
+                  fill: "#0b1016",
+                  stroke: "#4cc9f0",
+                  "stroke-width": 1.8 * k,
+                  "data-mid": i,
+                  style: "cursor:grab",
                 },
                 gUI,
               );
               el(
-                'path',
+                "path",
                 {
                   d: `M${mp.x - 2.5 * k} ${mp.y}h${5 * k}M${mp.x} ${mp.y - 2.5 * k}v${5 * k}`,
-                  stroke: '#4cc9f0',
-                  'stroke-width': 1.2 * k,
-                  'pointer-events': 'none',
+                  stroke: "#4cc9f0",
+                  "stroke-width": 1.2 * k,
+                  "pointer-events": "none",
                 },
                 gUI,
               );
             }
             f.pts.forEach((p, i) =>
               el(
-                'circle',
+                "circle",
                 {
                   cx: p.x,
                   cy: p.y,
                   r: 7.5 * k,
-                  fill: i === selV ? '#4cc9f0' : '#fff',
-                  stroke: '#4cc9f0',
-                  'stroke-width': 2 * k,
-                  'data-h': i,
-                  style: 'cursor:grab',
+                  fill: i === selV ? "#4cc9f0" : "#fff",
+                  stroke: "#4cc9f0",
+                  "stroke-width": 2 * k,
+                  "data-h": i,
+                  style: "cursor:grab",
                 },
                 gUI,
               ),
@@ -2435,60 +2450,60 @@
             const b = bbox(f.pts),
               cx = (b.minx + b.maxx) / 2;
             el(
-              'rect',
+              "rect",
               {
                 x: b.minx,
                 y: b.miny,
                 width: b.maxx - b.minx,
                 height: b.maxy - b.miny,
-                fill: 'none',
-                stroke: '#4cc9f0',
-                'stroke-width': 1.5 * k,
-                'stroke-dasharray': `${6 * k} ${5 * k}`,
-                'pointer-events': 'none',
+                fill: "none",
+                stroke: "#4cc9f0",
+                "stroke-width": 1.5 * k,
+                "stroke-dasharray": `${6 * k} ${5 * k}`,
+                "pointer-events": "none",
               },
               gUI,
             );
             el(
-              'line',
+              "line",
               {
                 x1: cx,
                 y1: b.miny,
                 x2: cx,
                 y2: b.miny - 34 * k,
-                stroke: '#4cc9f0',
-                'stroke-width': 1.5 * k,
-                'pointer-events': 'none',
+                stroke: "#4cc9f0",
+                "stroke-width": 1.5 * k,
+                "pointer-events": "none",
               },
               gUI,
             );
             el(
-              'circle',
+              "circle",
               {
                 cx,
                 cy: b.miny - 34 * k,
                 r: 9 * k,
-                fill: '#4cc9f0',
-                stroke: '#fff',
-                'stroke-width': 2 * k,
-                'data-tf': 'rotate',
-                style: 'cursor:alias',
+                fill: "#4cc9f0",
+                stroke: "#fff",
+                "stroke-width": 2 * k,
+                "data-tf": "rotate",
+                style: "cursor:alias",
               },
               gUI,
             );
             el(
-              'rect',
+              "rect",
               {
                 x: b.maxx - 8 * k,
                 y: b.maxy - 8 * k,
                 width: 16 * k,
                 height: 16 * k,
                 rx: 3 * k,
-                fill: '#7c5cff',
-                stroke: '#fff',
-                'stroke-width': 2 * k,
-                'data-tf': 'scale',
-                style: 'cursor:nwse-resize',
+                fill: "#7c5cff",
+                stroke: "#fff",
+                "stroke-width": 2 * k,
+                "data-tf": "scale",
+                style: "cursor:nwse-resize",
               },
               gUI,
             );
@@ -2501,60 +2516,60 @@
           if (cursor) pp.push(cursor);
           if (T.line)
             el(
-              'polyline',
+              "polyline",
               {
                 points: ptsStr(pp),
-                fill: 'none',
+                fill: "none",
                 stroke: T.color,
-                'stroke-width': T.w,
-                'stroke-linecap': 'round',
-                'stroke-linejoin': 'round',
+                "stroke-width": T.w,
+                "stroke-linecap": "round",
+                "stroke-linejoin": "round",
                 opacity: 0.65,
-                'pointer-events': 'none',
+                "pointer-events": "none",
               },
               gUI,
             );
           else
             el(
-              'polygon',
+              "polygon",
               {
                 points: ptsStr(pp),
                 fill: T.color,
-                'fill-opacity': 0.3,
+                "fill-opacity": 0.3,
                 stroke: T.color,
-                'stroke-width': 2.5,
-                'stroke-dasharray': '8 6',
-                'pointer-events': 'none',
+                "stroke-width": 2.5,
+                "stroke-dasharray": "8 6",
+                "pointer-events": "none",
               },
               gUI,
             );
           draft.pts.forEach((p, i) =>
             el(
-              'circle',
+              "circle",
               {
                 cx: p.x,
                 cy: p.y,
                 r: (i === draft.pts.length - 1 ? 6 : 4.5) * k,
-                fill: i === draft.pts.length - 1 ? '#4cc9f0' : '#fff',
-                stroke: '#05090e',
-                'stroke-width': k,
-                'pointer-events': 'none',
+                fill: i === draft.pts.length - 1 ? "#4cc9f0" : "#fff",
+                stroke: "#05090e",
+                "stroke-width": k,
+                "pointer-events": "none",
               },
               gUI,
             ),
           );
           if (!T.line && draft.pts.length >= 3)
             el(
-              'circle',
+              "circle",
               {
                 cx: draft.pts[0].x,
                 cy: draft.pts[0].y,
                 r: 10 * k,
-                fill: 'none',
-                stroke: '#34d399',
-                'stroke-width': 2 * k,
-                'stroke-dasharray': `${4 * k} ${3 * k}`,
-                'pointer-events': 'none',
+                fill: "none",
+                stroke: "#34d399",
+                "stroke-width": 2 * k,
+                "stroke-dasharray": `${4 * k} ${3 * k}`,
+                "pointer-events": "none",
               },
               gUI,
             );
@@ -2562,22 +2577,22 @@
         // cursor feedback
         const showCur =
           cursor &&
-          ((mode === 'draw' && tool !== 'select') ||
-            (drag && drag.kind === 'vertex'));
+          ((mode === "draw" && tool !== "select") ||
+            (drag && drag.kind === "vertex"));
         if (showCur) {
           const c = cursor,
             tags = [];
           if (c.snapped) {
             el(
-              'circle',
+              "circle",
               {
                 cx: c.x,
                 cy: c.y,
                 r: 12 * k,
-                fill: '#34d39933',
-                stroke: '#34d399',
-                'stroke-width': 3 * k,
-                'pointer-events': 'none',
+                fill: "#34d39933",
+                stroke: "#34d399",
+                "stroke-width": 3 * k,
+                "pointer-events": "none",
               },
               gUI,
             );
@@ -2585,30 +2600,30 @@
           } else {
             const a = 7 * k;
             el(
-              'path',
+              "path",
               {
                 d: `M${c.x - a} ${c.y}H${c.x + a}M${c.x} ${c.y - a}V${c.y + a}`,
-                stroke: c.kind === 'free' ? '#8a9bb0' : '#4cc9f0',
-                'stroke-width': 1.6 * k,
-                'pointer-events': 'none',
+                stroke: c.kind === "free" ? "#8a9bb0" : "#4cc9f0",
+                "stroke-width": 1.6 * k,
+                "pointer-events": "none",
               },
               gUI,
             );
-            if (c.kind === 'angle') tags.push('45° locked');
+            if (c.kind === "angle") tags.push("45° locked");
           }
           if (kb)
             el(
-              'rect',
+              "rect",
               {
                 x: c.x - 16 * k,
                 y: c.y - 16 * k,
                 width: 32 * k,
                 height: 32 * k,
-                fill: 'none',
-                stroke: '#4cc9f0',
-                'stroke-width': 1.4 * k,
-                'stroke-dasharray': `${4 * k} ${3 * k}`,
-                'pointer-events': 'none',
+                fill: "none",
+                stroke: "#4cc9f0",
+                "stroke-width": 1.4 * k,
+                "stroke-dasharray": `${4 * k} ${3 * k}`,
+                "pointer-events": "none",
               },
               gUI,
             );
@@ -2627,27 +2642,27 @@
               x = c.x + 16 * k,
               y = c.y + (14 + i * 24) * k;
             el(
-              'rect',
+              "rect",
               {
                 x,
                 y,
                 width: w,
                 height: h,
                 rx: 6 * k,
-                class: 'tagbg',
-                'stroke-width': k,
-                'pointer-events': 'none',
+                class: "tagbg",
+                "stroke-width": k,
+                "pointer-events": "none",
               },
               gUI,
             );
             const t = el(
-              'text',
+              "text",
               {
                 x: x + 7 * k,
                 y: y + 14 * k,
-                'font-size': 11.5 * k,
-                class: 'tagtx',
-                'pointer-events': 'none',
+                "font-size": 11.5 * k,
+                class: "tagtx",
+                "pointer-events": "none",
               },
               gUI,
             );
@@ -2658,26 +2673,26 @@
 
       /* ---------- tools ---------- */
       function renderTools() {
-        const t = $('tools');
-        t.innerHTML = '';
+        const t = $("tools");
+        t.innerHTML = "";
         const defs = [
-          ['select', 'Select'],
-          ['sep'],
-          ['runway', 'Runway'],
-          ['taxiway', 'Taxiway'],
-          ['apron', 'Apron'],
-          ['building', 'Building'],
-          ['point', 'Point'],
+          ["select", "Select"],
+          ["sep"],
+          ["runway", "Runway"],
+          ["taxiway", "Taxiway"],
+          ["apron", "Apron"],
+          ["building", "Building"],
+          ["point", "Point"],
         ];
         for (const d of defs) {
-          if (d[0] === 'sep') {
-            t.appendChild(document.createElement('hr'));
+          if (d[0] === "sep") {
+            t.appendChild(document.createElement("hr"));
             continue;
           }
-          const b = document.createElement('button');
-          b.className = tool === d[0] ? 'on' : '';
-          b.setAttribute('aria-pressed', tool === d[0]);
-          b.setAttribute('aria-keyshortcuts', KEYS[d[0]]);
+          const b = document.createElement("button");
+          b.className = tool === d[0] ? "on" : "";
+          b.setAttribute("aria-pressed", tool === d[0]);
+          b.setAttribute("aria-keyshortcuts", KEYS[d[0]]);
           b.title = `${d[1]} (${KEYS[d[0]]})`;
           b.innerHTML = `<svg viewBox="0 0 24 24" aria-hidden="true">${ICONS[d[0]]}</svg>${d[1]}<kbd aria-hidden="true">${KEYS[d[0]]}</kbd>`;
           b.onclick = () => setTool(d[0]);
@@ -2687,24 +2702,24 @@
       function setTool(t) {
         cancelDraft();
         tool = t;
-        if (t !== 'select') sel = selV = null;
+        if (t !== "select") sel = selV = null;
         cursor = kb = null;
         renderTools();
         renderSide();
         render();
         updateHint();
         announce(
-          `${t === 'select' ? 'Select' : TYPES[t].label} tool. ${HINTS[t]}`,
+          `${t === "select" ? "Select" : TYPES[t].label} tool. ${HINTS[t]}`,
         );
-        svg.style.cursor = t === 'select' ? '' : 'crosshair';
+        svg.style.cursor = t === "select" ? "" : "crosshair";
       }
       function cancelDraft() {
         draft = null;
-        $('draftbar').classList.add('hidden');
+        $("draftbar").classList.add("hidden");
       }
       function focusName() {
         setTimeout(() => {
-          const i = $('nameInput');
+          const i = $("nameInput");
           if (i) {
             i.focus();
             i.select();
@@ -2722,20 +2737,20 @@
           const f = {
             id: uid(),
             type: draft.type,
-            name: '',
+            name: "",
             pts: pts.map((p) => ({ x: p.x, y: p.y })),
           };
           S.features.push(f);
           sel = f.id;
           selV = null;
           draft = null;
-          tool = 'select';
+          tool = "select";
           cursor = kb = null;
           renderTools();
           commit();
           focusName();
           updateHint();
-          svg.style.cursor = '';
+          svg.style.cursor = "";
           announce(`${T.label} added. Type a name.`);
         } else {
           announce(
@@ -2745,25 +2760,25 @@
         }
       }
       function addDraftPoint(p) {
-        if (tool === 'point') {
+        if (tool === "point") {
           snap();
           const f = {
             id: uid(),
-            type: 'point',
-            name: '',
+            type: "point",
+            name: "",
             pts: [{ x: p.x, y: p.y }],
           };
           S.features.push(f);
           sel = f.id;
           selV = null;
-          tool = 'select';
+          tool = "select";
           cursor = kb = null;
           renderTools();
           commit();
           focusName();
           updateHint();
-          svg.style.cursor = '';
-          announce('Point added. Type a name.');
+          svg.style.cursor = "";
+          announce("Point added. Type a name.");
           return;
         }
         const T = TYPES[tool];
@@ -2792,7 +2807,7 @@
         f.pts.splice(i, 1);
         selV = null;
         commit();
-        announce('Point removed');
+        announce("Point removed");
         return true;
       }
       function delSel() {
@@ -2836,7 +2851,7 @@
           vb.y += dy * vb.h * 0.3;
         }
         render();
-        announce(cursor.snapped ? snapTag(cursor) : '');
+        announce(cursor.snapped ? snapTag(cursor) : "");
       }
       function selectFeature(id) {
         sel = id;
@@ -2845,11 +2860,11 @@
         selV = null;
         renderSide();
         render();
-        const it = document.querySelector('.item.sel');
-        if (it) it.scrollIntoView({ block: 'nearest' });
+        const it = document.querySelector(".item.sel");
+        if (it) it.scrollIntoView({ block: "nearest" });
         const f = byId(id);
         if (f)
-          announce(`${TYPES[f.type].label} ${f.name || 'unnamed'} selected`);
+          announce(`${TYPES[f.type].label} ${f.name || "unnamed"} selected`);
       }
       function selectRelative(d) {
         const list = sortedFeatures();
@@ -2864,54 +2879,115 @@
         selectFeature(list[i].id);
       }
       function updateHint() {
-        const h = $('hint');
-        if (mode === 'draw') {
+        const h = $("hint");
+        if (mode === "draw") {
           if (draft) {
             const poly = !TYPES[draft.type].line;
-            h.textContent = `${draft.pts.length} point${draft.pts.length === 1 ? '' : 's'} · Backspace undoes the last point · Enter finishes${poly ? ' (or click the first point)' : ''} · Esc cancels`;
+            h.textContent = `${draft.pts.length} point${draft.pts.length === 1 ? "" : "s"} · Backspace undoes the last point · Enter finishes${poly ? " (or click the first point)" : ""} · Esc cancels`;
           } else
             h.textContent =
-              HINTS[tool] + (gridSnap ? ` · grid ${gridStep()} u` : '');
-        } else if (mode === 'study')
+              HINTS[tool] + (gridSnap ? ` · grid ${gridStep()} u` : "");
+        } else if (mode === "study")
           h.textContent =
-            'Click any feature to see its name · [ and ] step through · L toggles labels';
+            "Click any feature to see its name · [ and ] step through · L toggles labels";
         else if (!quiz || quiz.idle || quiz.done)
-          h.textContent = 'Choose a quiz type and press Start';
-        else if (quiz.kind === 'find')
-          h.textContent = 'Click the feature on the map';
-        else if (quiz.kind === 'conn')
+          h.textContent = "Choose a quiz type and press Start";
+        else if (quiz.kind === "find")
+          h.textContent = "Click the feature on the map";
+        else if (quiz.kind === "conn")
           h.textContent = QOPT.typed
-            ? 'Type every line that joins the highlighted one · Enter submits'
-            : 'Tick every line that joins the highlighted one · number keys toggle · Enter checks';
-        else h.textContent = 'Number keys pick an answer · Enter for next';
+            ? "Type every line that joins the highlighted one · Enter submits"
+            : "Tick every line that joins the highlighted one · number keys toggle · Enter checks";
+        else h.textContent = "Number keys pick an answer · Enter for next";
       }
 
       /* ---------- pointer interaction ---------- */
       function startPan(ev) {
         panning = { sx: ev.clientX, sy: ev.clientY, vx: vb.x, vy: vb.y };
         svg.setPointerCapture(ev.pointerId);
-        svg.style.cursor = 'grabbing';
+        svg.style.cursor = "grabbing";
       }
       function cursorFor(tg) {
         const d = (tg && tg.dataset) || {};
-        if (panning || drag) return 'grabbing';
-        if (spaceDown) return 'grab';
-        if (mode === 'study') return d.id ? 'pointer' : 'grab';
-        if (mode === 'quiz')
+        if (panning || drag) return "grabbing";
+        if (spaceDown) return "grab";
+        if (mode === "study") return d.id ? "pointer" : "grab";
+        if (mode === "quiz")
           return quiz &&
-            quiz.kind === 'find' &&
+            quiz.kind === "find" &&
             !quiz.answered &&
             d.id &&
             findable(d.id)
-            ? 'pointer'
-            : 'grab';
-        if (tool !== 'select') return 'crosshair';
-        if (d.h !== undefined || d.mid !== undefined) return 'grab';
-        if (d.tf) return d.tf === 'rotate' ? 'alias' : 'nwse-resize';
-        if (d.id) return 'move';
-        return '';
+            ? "pointer"
+            : "grab";
+        if (tool !== "select") return "crosshair";
+        if (d.h !== undefined || d.mid !== undefined) return "grab";
+        if (d.tf) return d.tf === "rotate" ? "alias" : "nwse-resize";
+        if (d.id) return "move";
+        return "";
       }
-      svg.addEventListener('pointerdown', (ev) => {
+      // Two-finger pinch zoom + pan. These capture-phase handlers swallow events while a pinch is active.
+      const touches = new Map();
+      let pinch = null;
+      const pinchGeom = () => {
+        const [a, b] = [...touches.values()];
+        return {
+          d: Math.hypot(a.x - b.x, a.y - b.y) || 1,
+          x: (a.x + b.x) / 2,
+          y: (a.y + b.y) / 2,
+        };
+      };
+      svg.addEventListener(
+        "pointerdown",
+        (ev) => {
+          touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+          if (touches.size === 2 && ev.pointerType === "touch") {
+            if (drag) {
+              drag.f.pts = drag.orig;
+              undoStack.pop();
+              drag = null;
+              cursor = null;
+            }
+            panning = null;
+            pinch = pinchGeom();
+            hover = null;
+            svg.setPointerCapture(ev.pointerId);
+          }
+          if (pinch) ev.stopImmediatePropagation();
+        },
+        true,
+      );
+      svg.addEventListener(
+        "pointermove",
+        (ev) => {
+          if (!touches.has(ev.pointerId)) return;
+          touches.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+          if (!pinch) return;
+          ev.stopImmediatePropagation();
+          if (touches.size < 2) return;
+          const g = pinchGeom();
+          zoomAt(
+            toWorld({ clientX: pinch.x, clientY: pinch.y }),
+            pinch.d / g.d,
+          );
+          const s = scale();
+          vb.x -= (g.x - pinch.x) / s;
+          vb.y -= (g.y - pinch.y) / s;
+          pinch = g;
+          render();
+        },
+        true,
+      );
+      const endTouch = (ev) => {
+        touches.delete(ev.pointerId);
+        if (pinch) {
+          ev.stopImmediatePropagation();
+          if (touches.size === 0) pinch = null;
+        }
+      };
+      svg.addEventListener("pointerup", endTouch, true);
+      svg.addEventListener("pointercancel", endTouch, true);
+      svg.addEventListener("pointerdown", (ev) => {
         const w = toWorld(ev),
           tg = hitTarget(ev);
         svg.focus({ preventScroll: true });
@@ -2920,10 +2996,10 @@
           return;
         }
         if (ev.button !== 0) return;
-        if (mode === 'quiz') {
+        if (mode === "quiz") {
           if (
             quiz &&
-            quiz.kind === 'find' &&
+            quiz.kind === "find" &&
             !quiz.answered &&
             tg.dataset.id &&
             findable(tg.dataset.id)
@@ -2934,7 +3010,7 @@
           startPan(ev);
           return;
         }
-        if (mode === 'study') {
+        if (mode === "study") {
           if (tg.dataset.id && named(byId(tg.dataset.id))) {
             selectFeature(tg.dataset.id);
             return;
@@ -2943,16 +3019,16 @@
           startPan(ev);
           return;
         }
-        if (tool === 'select') {
+        if (tool === "select") {
           if (tg.dataset.tf) {
             const f = byId(sel),
               b = bbox(f.pts);
             snap();
             const orig = f.pts.map((p) => ({ ...p }));
-            if (tg.dataset.tf === 'scale') {
+            if (tg.dataset.tf === "scale") {
               const anchor = { x: b.minx, y: b.miny };
               drag = {
-                kind: 'scale',
+                kind: "scale",
                 f,
                 orig,
                 anchor,
@@ -2961,7 +3037,7 @@
             } else {
               const c = { x: (b.minx + b.maxx) / 2, y: (b.miny + b.maxy) / 2 };
               drag = {
-                kind: 'rotate',
+                kind: "rotate",
                 f,
                 orig,
                 c,
@@ -2981,7 +3057,7 @@
             lastVtx = { i, t: now };
             selV = i;
             snap();
-            drag = { kind: 'vertex', f: byId(sel), i, moved: false };
+            drag = { kind: "vertex", f: byId(sel), i, moved: false };
             svg.setPointerCapture(ev.pointerId);
             render();
             return;
@@ -2995,9 +3071,9 @@
             const at = i + 1;
             f.pts.splice(at, 0, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
             selV = at;
-            drag = { kind: 'vertex', f, i: at, moved: true };
+            drag = { kind: "vertex", f, i: at, moved: true };
             svg.setPointerCapture(ev.pointerId);
-            announce('Bend added');
+            announce("Bend added");
             render();
             return;
           }
@@ -3007,7 +3083,7 @@
             selV = null;
             snap();
             drag = {
-              kind: 'move',
+              kind: "move",
               f,
               start: w,
               orig: f.pts.map((p) => ({ ...p })),
@@ -3034,7 +3110,7 @@
           p = constrain(draft.pts[draft.pts.length - 1], w);
         addDraftPoint(p);
       });
-      svg.addEventListener('pointermove', (ev) => {
+      svg.addEventListener("pointermove", (ev) => {
         if (panning) {
           const s = scale();
           vb.x = panning.vx - (ev.clientX - panning.sx) / s;
@@ -3044,12 +3120,12 @@
         }
         const w = toWorld(ev);
         if (drag) {
-          if (drag.kind === 'vertex') {
+          if (drag.kind === "vertex") {
             const p = snapPoint(w, drag.f, { free: ev.altKey });
             drag.f.pts[drag.i] = { x: p.x, y: p.y };
             drag.moved = true;
             cursor = p;
-          } else if (drag.kind === 'scale') {
+          } else if (drag.kind === "scale") {
             const p = snapPoint(w, drag.f, { free: ev.altKey }),
               a = drag.anchor;
             const k = Math.max(0.05, dist(a, p) / drag.d0);
@@ -3057,7 +3133,7 @@
               x: a.x + (q.x - a.x) * k,
               y: a.y + (q.y - a.y) * k,
             }));
-          } else if (drag.kind === 'rotate') {
+          } else if (drag.kind === "rotate") {
             const c = drag.c;
             let da = Math.atan2(w.y - c.y, w.x - c.x) - drag.a0;
             if (!ev.altKey) {
@@ -3091,7 +3167,7 @@
           hover = id;
           if (hoverOK() || hover === null) dirty = true;
         }
-        if (mode === 'draw' && tool !== 'select') {
+        if (mode === "draw" && tool !== "select") {
           kb = null;
           let p = snapPoint(w, null, {
             free: ev.altKey,
@@ -3104,19 +3180,19 @@
         }
         if (dirty) render();
       });
-      svg.addEventListener('pointerleave', () => {
+      svg.addEventListener("pointerleave", () => {
         if (drag || panning) return;
-        const had = hover || (cursor && mode === 'draw' && tool !== 'select');
+        const had = hover || (cursor && mode === "draw" && tool !== "select");
         hover = null;
         if (!kb) cursor = null;
         if (had) render();
       });
-      svg.addEventListener('pointerup', () => {
+      svg.addEventListener("pointerup", () => {
         if (drag) {
           const d = drag;
           drag = null;
           cursor = null;
-          if ((d.kind === 'move' || d.kind === 'vertex') && !d.moved)
+          if ((d.kind === "move" || d.kind === "vertex") && !d.moved)
             undoStack.pop();
           save();
           renderSide();
@@ -3124,18 +3200,18 @@
         }
         if (panning) {
           panning = null;
-          svg.style.cursor = '';
+          svg.style.cursor = "";
         }
       });
       svg.addEventListener(
-        'wheel',
+        "wheel",
         (ev) => {
           ev.preventDefault();
           zoomAt(toWorld(ev), ev.deltaY < 0 ? 0.88 : 1.14);
         },
         { passive: false },
       );
-      svg.addEventListener('contextmenu', (e) => e.preventDefault());
+      svg.addEventListener("contextmenu", (e) => e.preventDefault());
       function zoomAt(w, k) {
         const nw = Math.min(12000, Math.max(150, vb.w * k)),
           kk = nw / vb.w;
@@ -3144,7 +3220,7 @@
         vb.w = nw;
         vb.h *= kk;
         render();
-        if (mode === 'draw' && !draft) updateHint();
+        if (mode === "draw" && !draft) updateHint();
       }
       const viewCenter = () => ({ x: vb.x + vb.w / 2, y: vb.y + vb.h / 2 });
       function fit() {
@@ -3182,42 +3258,42 @@
         };
         render();
       }
-      $('zin').onclick = () => zoomAt(viewCenter(), 0.8);
-      $('zout').onclick = () => zoomAt(viewCenter(), 1.25);
-      $('zfit').onclick = fit;
+      $("zin").onclick = () => zoomAt(viewCenter(), 0.8);
+      $("zout").onclick = () => zoomAt(viewCenter(), 1.25);
+      $("zfit").onclick = fit;
       function toggleGrid() {
         gridSnap = !gridSnap;
-        localStorage.setItem('aerodrome-grid', gridSnap ? '1' : '0');
-        $('zgrid').classList.toggle('on', gridSnap);
-        $('zgrid').setAttribute('aria-pressed', gridSnap);
-        announce(`Snap to grid ${gridSnap ? 'on' : 'off'}`);
+        localStorage.setItem("aerodrome-grid", gridSnap ? "1" : "0");
+        $("zgrid").classList.toggle("on", gridSnap);
+        $("zgrid").setAttribute("aria-pressed", gridSnap);
+        announce(`Snap to grid ${gridSnap ? "on" : "off"}`);
         updateHint();
       }
-      $('zgrid').onclick = toggleGrid;
-      $('zgrid').classList.toggle('on', gridSnap);
-      $('zgrid').setAttribute('aria-pressed', gridSnap);
-      $('undo').onclick = undo;
-      $('redo').onclick = redo;
-      $('dundo').onclick = () => {
+      $("zgrid").onclick = toggleGrid;
+      $("zgrid").classList.toggle("on", gridSnap);
+      $("zgrid").setAttribute("aria-pressed", gridSnap);
+      $("undo").onclick = undo;
+      $("redo").onclick = redo;
+      $("dundo").onclick = () => {
         undo();
         svg.focus();
       };
-      $('dfinish').onclick = () => {
+      $("dfinish").onclick = () => {
         finishDraft();
       };
-      $('dcancel').onclick = () => {
+      $("dcancel").onclick = () => {
         cancelDraft();
         updateHint();
         render();
         svg.focus();
-        announce('Drawing cancelled');
+        announce("Drawing cancelled");
       };
-      $('mapSel').onchange = (e) => {
+      $("mapSel").onchange = (e) => {
         if (e.target.value) openMap(e.target.value);
       };
-      $('newMap').onclick = () => newMap();
-      $('renameMap').onclick = renameMap;
-      $('delMap').onclick = deleteMap;
+      $("newMap").onclick = () => newMap();
+      $("renameMap").onclick = renameMap;
+      $("delMap").onclick = deleteMap;
 
       const HELP_EDIT = `<h5>Drawing</h5><table>
         <tr><td><kbd class="k">V</kbd> <kbd class="k">R</kbd> <kbd class="k">T</kbd> <kbd class="k">A</kbd> <kbd class="k">B</kbd> <kbd class="k">P</kbd></td><td>Select · Runway · Taxiway · Apron · Building · Point</td></tr>
@@ -3243,59 +3319,59 @@
         <tr><td><kbd class="k">L</kbd></td><td>Toggle labels (Study)</td></tr>
         <tr><td><kbd class="k">1</kbd>–<kbd class="k">8</kbd></td><td>Pick / tick an answer (Quiz)</td></tr>
         <tr><td><kbd class="k">Enter</kbd></td><td>Check answer / next question</td></tr></table>`;
-      $('help').onclick = () =>
+      $("help").onclick = () =>
         dialog({
-          title: 'Keyboard shortcuts',
-          html: (EDIT ? HELP_EDIT : '') + HELP_VIEW,
-          ok: 'Close',
+          title: "Keyboard shortcuts",
+          html: (EDIT ? HELP_EDIT : "") + HELP_VIEW,
+          ok: "Close",
           cancel: false,
         });
 
       /* ---------- keyboard ---------- */
       // Typed answer text; dimension questions use two boxes (length, width).
       function typedValue() {
-        const a = $('typed'),
-          b = $('typed2');
-        if (!a) return '';
+        const a = $("typed"),
+          b = $("typed2");
+        if (!a) return "";
         if (!b) return a.value;
         const l = a.value.trim(),
           w = b.value.trim();
-        return l || w ? `${l} x ${w}` : '';
+        return l || w ? `${l} x ${w}` : "";
       }
       // Enter in the length box with a value jumps to width; otherwise it submits.
       function typedEnter(el) {
-        const b = $('typed2');
-        if (b && el.id === 'typed' && el.value.trim() && !b.value.trim()) {
+        const b = $("typed2");
+        if (b && el.id === "typed" && el.value.trim() && !b.value.trim()) {
           b.focus();
           return;
         }
         answerText(typedValue());
       }
-      addEventListener('keydown', (ev) => {
+      addEventListener("keydown", (ev) => {
         // Some hosts (e.g. embedded browsers) pre-mark Escape as handled, so don't bail on it.
         if (
-          (ev.defaultPrevented && ev.key !== 'Escape') ||
-          document.querySelector('.modal')
+          (ev.defaultPrevented && ev.key !== "Escape") ||
+          document.querySelector(".modal")
         )
           return;
         const ae = document.activeElement,
-          tag = ae ? ae.tagName : '';
+          tag = ae ? ae.tagName : "";
         if (/^(INPUT|TEXTAREA|SELECT)$/.test(tag)) {
           if (
-            ev.key === 'Enter' &&
-            mode === 'quiz' &&
+            ev.key === "Enter" &&
+            mode === "quiz" &&
             quiz &&
             !quiz.done &&
             !quiz.idle
           ) {
-            if (ae.id === 'typed' || ae.id === 'typed2') {
+            if (ae.id === "typed" || ae.id === "typed2") {
               ev.preventDefault();
               if (!quiz.answered) typedEnter(ae);
               return;
             }
             if (
-              ae.type === 'checkbox' &&
-              quiz.kind === 'conn' &&
+              ae.type === "checkbox" &&
+              quiz.kind === "conn" &&
               !quiz.answered
             ) {
               ev.preventDefault();
@@ -3304,38 +3380,38 @@
             }
           }
           if (
-            ev.key === 'Escape' ||
-            (ev.key === 'Enter' &&
-              ae.type !== 'checkbox' &&
-              tag === 'INPUT' &&
-              ae.id !== 'typed' &&
-              ae.id !== 'typed2')
+            ev.key === "Escape" ||
+            (ev.key === "Enter" &&
+              ae.type !== "checkbox" &&
+              tag === "INPUT" &&
+              ae.id !== "typed" &&
+              ae.id !== "typed2")
           )
             ae.blur();
           return;
         }
-        const onBtn = tag === 'BUTTON' || tag === 'A';
+        const onBtn = tag === "BUTTON" || tag === "A";
         const k = ev.key,
           lk = k.length === 1 ? k.toLowerCase() : k,
           ctrl = ev.ctrlKey || ev.metaKey;
-        if (ev.code === 'Space' && !onBtn) {
+        if (ev.code === "Space" && !onBtn) {
           spaceDown = true;
           ev.preventDefault();
-          if (mode === 'draw' && tool !== 'select' && kb && cursor)
+          if (mode === "draw" && tool !== "select" && kb && cursor)
             addDraftPoint(cursor);
           return;
         }
-        if (k === '?') {
+        if (k === "?") {
           ev.preventDefault();
-          $('help').click();
+          $("help").click();
           return;
         }
-        if (ctrl && lk === 'z') {
+        if (ctrl && lk === "z") {
           ev.preventDefault();
           ev.shiftKey ? redo() : undo();
           return;
         }
-        if (ctrl && lk === 'y') {
+        if (ctrl && lk === "y") {
           ev.preventDefault();
           redo();
           return;
@@ -3353,27 +3429,27 @@
           render();
           return;
         }
-        if (k === '+' || k === '=') {
+        if (k === "+" || k === "=") {
           zoomAt(viewCenter(), 0.8);
           return;
         }
-        if (k === '-' || k === '_') {
+        if (k === "-" || k === "_") {
           zoomAt(viewCenter(), 1.25);
           return;
         }
-        if (k === '0') {
+        if (k === "0") {
           fit();
           return;
         }
         if (ctrl || ev.altKey) return;
 
-        if (mode === 'draw') {
-          if (k === 'Escape') {
+        if (mode === "draw") {
+          if (k === "Escape") {
             if (draft) {
               cancelDraft();
               updateHint();
               render();
-              announce('Drawing cancelled');
+              announce("Drawing cancelled");
             } else if (selV !== null) {
               selV = null;
               render();
@@ -3381,20 +3457,20 @@
               sel = null;
               renderSide();
               render();
-            } else if (tool !== 'select') setTool('select');
+            } else if (tool !== "select") setTool("select");
             return;
           }
-          if (k === 'Enter' && !onBtn) {
+          if (k === "Enter" && !onBtn) {
             if (draft) finishDraft();
-            else if (sel && tool === 'select') focusName();
+            else if (sel && tool === "select") focusName();
             return;
           }
-          if (k === 'F2' && sel) {
+          if (k === "F2" && sel) {
             ev.preventDefault();
             focusName();
             return;
           }
-          if (k === 'Backspace' || k === 'Delete') {
+          if (k === "Backspace" || k === "Delete") {
             if (draft) {
               ev.preventDefault();
               undo();
@@ -3408,7 +3484,7 @@
             ev.preventDefault();
             const g = gridStep(),
               m = ev.shiftKey ? 5 : 1;
-            if (tool !== 'select') kbMove(arrows[0] * m, arrows[1] * m);
+            if (tool !== "select") kbMove(arrows[0] * m, arrows[1] * m);
             else if (sel) nudge(arrows[0] * g * m, arrows[1] * g * m);
             else {
               vb.x += arrows[0] * vb.w * 0.1;
@@ -3417,17 +3493,17 @@
             }
             return;
           }
-          if (lk === 'g') {
+          if (lk === "g") {
             toggleGrid();
             return;
           }
           const m = {
-            v: 'select',
-            r: 'runway',
-            t: 'taxiway',
-            a: 'apron',
-            b: 'building',
-            p: 'point',
+            v: "select",
+            r: "runway",
+            t: "taxiway",
+            a: "apron",
+            b: "building",
+            p: "point",
           }[lk];
           if (m) {
             setTool(m);
@@ -3440,30 +3516,30 @@
           render();
           return;
         }
-        if (mode !== 'quiz' && (k === '[' || k === ']')) {
-          selectRelative(k === ']' ? 1 : -1);
+        if (mode !== "quiz" && (k === "[" || k === "]")) {
+          selectRelative(k === "]" ? 1 : -1);
           return;
         }
-        if (mode === 'study' && lk === 'l') {
-          const c = $('lblToggle');
+        if (mode === "study" && lk === "l") {
+          const c = $("lblToggle");
           if (c) c.click();
           return;
         }
-        if (mode === 'study' && k === 'Escape') {
+        if (mode === "study" && k === "Escape") {
           sel = null;
           renderSide();
           render();
           return;
         }
-        if (mode === 'quiz' && quiz) {
+        if (mode === "quiz" && quiz) {
           if (/^[1-8]$/.test(k)) {
             const b = document.querySelector(`[data-n="${k}"]`);
             if (b) b.click();
             return;
           }
-          if (k === 'Enter' && !quiz.done && !quiz.idle) {
+          if (k === "Enter" && !quiz.done && !quiz.idle) {
             if (quiz.answered) {
-              if (!onBtn || ae.id === 'qnext') {
+              if (!onBtn || ae.id === "qnext") {
                 ev.preventDefault();
                 nextQ();
               }
@@ -3474,50 +3550,50 @@
               ae.click();
               return;
             }
-            if (ae.id === 'qcheck') {
+            if (ae.id === "qcheck") {
               ev.preventDefault();
               answerConn();
               return;
             }
-            if (ae.id === 'tsubmit') {
+            if (ae.id === "tsubmit") {
               ev.preventDefault();
               answerText(typedValue());
               return;
             }
-            if (!onBtn && quiz.kind === 'conn') {
+            if (!onBtn && quiz.kind === "conn") {
               ev.preventDefault();
               answerConn();
             }
           }
         }
       });
-      addEventListener('keyup', (ev) => {
-        if (ev.code === 'Space') spaceDown = false;
+      addEventListener("keyup", (ev) => {
+        if (ev.code === "Space") spaceDown = false;
       });
-      addEventListener('blur', () => (spaceDown = false));
+      addEventListener("blur", () => (spaceDown = false));
 
       /* ---------- sidebar ---------- */
       const nat = (a, b) =>
-        a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+        a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
       const GROUPS = [
-        ['runway', 'Runways'],
-        ['taxiway', 'Taxiways'],
-        ['apron', 'Aprons'],
-        ['building', 'Buildings'],
-        ['point', 'Gates & points'],
+        ["runway", "Runways"],
+        ["taxiway", "Taxiways"],
+        ["apron", "Aprons"],
+        ["building", "Buildings"],
+        ["point", "Gates & points"],
       ];
       const collapsed = new Set();
-      let listQ = '';
+      let listQ = "";
       function sortedFeatures() {
         const gi = (f) => GROUPS.findIndex((g) => g[0] === f.type);
         return S.features
-          .filter((f) => mode !== 'study' || (named(f) && f.type !== 'apron'))
+          .filter((f) => mode !== "study" || (named(f) && f.type !== "apron"))
           .sort((a, b) => {
             if (gi(a) !== gi(b)) return gi(a) - gi(b);
             const an = named(a) ? 1 : 0,
               bn = named(b) ? 1 : 0;
             if (an !== bn) return bn - an;
-            return nat(a.name || '', b.name || '');
+            return nat(a.name || "", b.name || "");
           });
       }
       const typeDot = (t) =>
@@ -3530,21 +3606,21 @@
         const out = GROUPS.map(([t, label]) => {
           const items = all.filter(
             (f) =>
-              f.type === t && (!q || (f.name || '').toLowerCase().includes(q)),
+              f.type === t && (!q || (f.name || "").toLowerCase().includes(q)),
           );
-          if (!items.length) return '';
+          if (!items.length) return "";
           const open = q || !collapsed.has(t);
-          return `<div class="grp" role="group" aria-label="${label}"><button type="button" class="ghead" data-grp="${t}" aria-expanded="${!!open}"><span class="car" aria-hidden="true">${open ? '▾' : '▸'}</span>${typeDot(t)}<span>${label}</span><span class="cnt">${items.length}</span></button>${
+          return `<div class="grp" role="group" aria-label="${label}"><button type="button" class="ghead" data-grp="${t}" aria-expanded="${!!open}"><span class="car" aria-hidden="true">${open ? "▾" : "▸"}</span>${typeDot(t)}<span>${label}</span><span class="cnt">${items.length}</span></button>${
             open
               ? items
                   .map(
                     (f) =>
-                      `<button type="button" class="item ${f.id === sel ? 'sel' : ''}" data-id="${f.id}" ${f.id === sel ? 'aria-current="true"' : ''}><span class="nm">${named(f) ? esc(f.name) : '<i class="muted">unnamed</i>'}</span>${f.type === 'runway' && dimText(f) ? `<small>${esc(dimText(f))}</small>` : ''}</button>`,
+                      `<button type="button" class="item ${f.id === sel ? "sel" : ""}" data-id="${f.id}" ${f.id === sel ? 'aria-current="true"' : ""}><span class="nm">${named(f) ? esc(f.name) : '<i class="muted">unnamed</i>'}</span>${f.type === "runway" && dimText(f) ? `<small>${esc(dimText(f))}</small>` : ""}</button>`,
                   )
-                  .join('')
-              : ''
+                  .join("")
+              : ""
           }</div>`;
-        }).join('');
+        }).join("");
         return (
           out || `<div class="empty">No features match “${esc(listQ)}”.</div>`
         );
@@ -3552,15 +3628,15 @@
       const filterHTML = () =>
         `<div class="lfilter"><input type="search" id="lq" placeholder="Filter features…" aria-label="Filter features" autocomplete="off" value="${esc(listQ)}"></div>`;
       function bindList(root) {
-        const lq = root.querySelector('#lq');
+        const lq = root.querySelector("#lq");
         if (lq)
           lq.oninput = () => {
             listQ = lq.value;
             refreshList();
           };
-        root.querySelectorAll('.list').forEach((l) => {
+        root.querySelectorAll(".list").forEach((l) => {
           l.onclick = (e) => {
-            const h = e.target.closest('[data-grp]');
+            const h = e.target.closest("[data-grp]");
             if (h) {
               const t = h.dataset.grp;
               collapsed.has(t) ? collapsed.delete(t) : collapsed.add(t);
@@ -3569,16 +3645,16 @@
               if (nh) nh.focus();
               return;
             }
-            const b = e.target.closest('[data-id]');
+            const b = e.target.closest("[data-id]");
             if (b) selectFeature(b.dataset.id);
           };
         });
         root
-          .querySelectorAll('[data-go]')
+          .querySelectorAll("[data-go]")
           .forEach((b) => (b.onclick = () => selectFeature(b.dataset.go)));
       }
       function refreshList() {
-        const l = $('side').querySelector('.list');
+        const l = $("side").querySelector(".list");
         if (!l) return;
         const top = l.scrollTop;
         l.innerHTML = listHTML();
@@ -3587,34 +3663,34 @@
       const dimText = (f) =>
         f.len > 0 && f.wid > 0 ? fmtDim(f.len, f.wid) : null;
       function connHTML(f) {
-        if (!isLine(f)) return '';
+        if (!isLine(f)) return "";
         const nb = neighbours(f).sort((a, b) =>
-          nat(a.name || '~', b.name || '~'),
+          nat(a.name || "~", b.name || "~"),
         );
         return `<div class="sec"><h3>Connects to (${nb.length})</h3>${
           nb.length
-            ? `<div class="chips">${nb.map((o) => `<button type="button" class="chip" data-go="${o.id}">${esc(o.name) || 'unnamed ' + TYPES[o.type].label.toLowerCase()}</button>`).join('')}</div>`
+            ? `<div class="chips">${nb.map((o) => `<button type="button" class="chip" data-go="${o.id}">${esc(o.name) || "unnamed " + TYPES[o.type].label.toLowerCase()}</button>`).join("")}</div>`
             : '<span class="muted">Nothing yet. End a line on a green ring (or on another line) to join them.</span>'
         }</div>`;
       }
       const nameKey = (s) =>
-        String(s || '')
+        String(s || "")
           .trim()
           .toLowerCase();
       const nameClash = (name, id) => {
         const k = nameKey(name);
         return k
           ? S.features.find(
-              (o) => o.id !== id && o.type !== 'apron' && nameKey(o.name) === k,
+              (o) => o.id !== id && o.type !== "apron" && nameKey(o.name) === k,
             )
           : null;
       };
       function renderSide() {
-        const a = $('side');
-        const keep = a.querySelector('.list')
-          ? a.querySelector('.list').scrollTop
+        const a = $("side");
+        const keep = a.querySelector(".list")
+          ? a.querySelector(".list").scrollTop
           : 0;
-        if (mode === 'draw') {
+        if (mode === "draw") {
           const f = byId(sel);
           const types = f
             ? Object.keys(TYPES).filter(
@@ -3623,46 +3699,46 @@
                   !!TYPES[k].pt === !!TYPES[f.type].pt,
               )
             : [];
-          a.innerHTML = `<div class="sec"><h3>${f ? 'Selected' : 'Properties'}</h3>${
+          a.innerHTML = `<div class="sec"><h3>${f ? "Selected" : "Properties"}</h3>${
             f
-              ? `${f.type !== 'apron' ? `<div class="row"><label for="nameInput">Name</label><input type="text" id="nameInput" value="${esc(f.name)}" placeholder="e.g. Alpha, 09/27, B21" autocomplete="off"></div><div class="name-err" id="nameErr" role="alert">${f.type !== 'apron' && nameClash(f.name, f.id) ? `Duplicate name: another feature is already called “${esc(f.name.trim())}”. Rename one of them.` : ''}</div>` : ''}
+              ? `${f.type !== "apron" ? `<div class="row"><label for="nameInput">Name</label><input type="text" id="nameInput" value="${esc(f.name)}" placeholder="e.g. Alpha, 09/27, B21" autocomplete="off"></div><div class="name-err" id="nameErr" role="alert">${f.type !== "apron" && nameClash(f.name, f.id) ? `Duplicate name: another feature is already called “${esc(f.name.trim())}”. Rename one of them.` : ""}</div>` : ""}
       ${
-        f.type === 'runway'
-          ? `<div class="row"><label for="lenInput">Length</label><input type="number" id="lenInput" min="0" step="1" inputmode="numeric" value="${f.len || ''}" placeholder="e.g. 2438"><span class="u">m</span></div>
-      <div class="row"><label for="widInput">Width</label><input type="number" id="widInput" min="0" step="1" inputmode="numeric" value="${f.wid || ''}" placeholder="e.g. 45"><span class="u">m</span></div>`
-          : ''
+        f.type === "runway"
+          ? `<div class="row"><label for="lenInput">Length</label><input type="number" id="lenInput" min="0" step="1" inputmode="numeric" value="${f.len || ""}" placeholder="e.g. 2438"><span class="u">m</span></div>
+      <div class="row"><label for="widInput">Width</label><input type="number" id="widInput" min="0" step="1" inputmode="numeric" value="${f.wid || ""}" placeholder="e.g. 45"><span class="u">m</span></div>`
+          : ""
       }
-      <div class="row"><label id="typeLbl">Type</label><div class="seg" style="flex:1" role="group" aria-labelledby="typeLbl">${types.map((k) => `<button type="button" data-t="${k}" aria-pressed="${k === f.type}" class="${k === f.type ? 'on' : ''}">${TYPES[k].label}</button>`).join('')}</div></div>
+      <div class="row"><label id="typeLbl">Type</label><div class="seg" style="flex:1" role="group" aria-labelledby="typeLbl">${types.map((k) => `<button type="button" data-t="${k}" aria-pressed="${k === f.type}" class="${k === f.type ? "on" : ""}">${TYPES[k].label}</button>`).join("")}</div></div>
       <div class="row"><button class="btn danger" id="del" style="flex:1">Delete</button></div>`
               : '<div class="muted">Select a shape to name or edit it.</div>'
-          }</div>${f ? connHTML(f) : ''}
+          }</div>${f ? connHTML(f) : ""}
       <div class="sec" style="padding-bottom:6px"><h3>Features (${S.features.length})</h3></div>${filterHTML()}<div class="list">${listHTML()}</div>`;
           if (f) {
-            const ni = $('nameInput');
+            const ni = $("nameInput");
             if (ni) {
               ni.oninput = () => {
-                const err = $('nameErr'),
+                const err = $("nameErr"),
                   clash = nameClash(ni.value, f.id);
                 if (clash) {
-                  ni.setAttribute('aria-invalid', 'true');
+                  ni.setAttribute("aria-invalid", "true");
                   err.textContent = `“${ni.value.trim()}” is already used by another ${TYPES[clash.type].label.toLowerCase()}. Names must be unique.`;
                   return;
                 }
-                ni.removeAttribute('aria-invalid');
-                err.textContent = '';
+                ni.removeAttribute("aria-invalid");
+                err.textContent = "";
                 f.name = ni.value;
                 save();
                 render();
                 const it = a.querySelector(`.item[data-id="${f.id}"] .nm`);
-                if (it) it.textContent = f.name || 'unnamed';
+                if (it) it.textContent = f.name || "unnamed";
               };
               ni.onfocus = () => snap();
               ni.onblur = () => {
                 if (byId(sel) !== f) return;
                 if (nameClash(ni.value, f.id)) {
                   ni.value = f.name;
-                  ni.removeAttribute('aria-invalid');
-                  $('nameErr').textContent = '';
+                  ni.removeAttribute("aria-invalid");
+                  $("nameErr").textContent = "";
                 }
                 refreshList();
               };
@@ -3678,54 +3754,54 @@
                 save();
               };
             };
-            dim('lenInput', 'len');
-            dim('widInput', 'wid');
-            a.querySelectorAll('[data-t]').forEach(
+            dim("lenInput", "len");
+            dim("widInput", "wid");
+            a.querySelectorAll("[data-t]").forEach(
               (b) =>
                 (b.onclick = () => {
                   snap();
                   f.type = b.dataset.t;
-                  if (f.type === 'apron') f.name = '';
+                  if (f.type === "apron") f.name = "";
                   commit();
                 }),
             );
-            $('del').onclick = delSel;
+            $("del").onclick = delSel;
           }
           bindList(a);
-        } else if (mode === 'study') {
+        } else if (mode === "study") {
           const f = byId(sel);
-          const dims = f && f.type === 'runway' ? dimText(f) : null;
+          const dims = f && f.type === "runway" ? dimText(f) : null;
           a.innerHTML = `<div class="sec"><h3>Study</h3>
-      <label class="check"><input type="checkbox" id="lblToggle" ${labelsOn ? 'checked' : ''}> Show labels on map <kbd class="k">L</kbd></label>
-      <div style="margin-top:10px${f ? ';min-height:44px' : ''}">${f ? `<div class="q">${TYPES[f.type].label}</div><div class="qbig" style="margin:2px 0">${named(f) ? esc(f.name) : '(unnamed)'}</div>${dims ? `<div>${esc(dims)}</div>` : ''}` : '<span class="muted">Click a feature to identify it.</span>'}</div></div>
-      ${f ? connHTML(f) : ''}
+      <label class="check"><input type="checkbox" id="lblToggle" ${labelsOn ? "checked" : ""}> Show labels on map <kbd class="k">L</kbd></label>
+      <div style="margin-top:10px${f ? ";min-height:44px" : ""}">${f ? `<div class="q">${TYPES[f.type].label}</div><div class="qbig" style="margin:2px 0">${named(f) ? esc(f.name) : "(unnamed)"}</div>${dims ? `<div>${esc(dims)}</div>` : ""}` : '<span class="muted">Click a feature to identify it.</span>'}</div></div>
+      ${f ? connHTML(f) : ""}
       <div class="sec"><div class="legend">${Object.keys(TYPES)
-        .filter((k) => k !== 'apron')
+        .filter((k) => k !== "apron")
         .map((k) => `<span>${typeDot(k)}${TYPES[k].label}</span>`)
-        .join('')}</div></div>
+        .join("")}</div></div>
       ${filterHTML()}<div class="list">${listHTML()}</div>`;
-          $('lblToggle').onchange = (e) => {
+          $("lblToggle").onchange = (e) => {
             labelsOn = e.target.checked;
             render();
           };
           bindList(a);
         } else renderQuizSide();
-        const l = a.querySelector('.list');
+        const l = a.querySelector(".list");
         if (l) l.scrollTop = keep;
       }
 
       /* ---------- quiz data ---------- */
       const QOPT = {
-        kind: 'name',
+        kind: "name",
         typed: false,
         types: { runway: true, taxiway: true, building: true, point: true },
       };
       const quizPool = () =>
         S.features.filter(
-          (f) => f.type !== 'apron' && named(f) && QOPT.types[f.type],
+          (f) => f.type !== "apron" && named(f) && QOPT.types[f.type],
         );
       const norm = (s) => String(s).trim().toLowerCase();
-      const fmtDim = (l, w) => `${l.toLocaleString('en-US')} × ${w} m`;
+      const fmtDim = (l, w) => `${l.toLocaleString("en-US")} × ${w} m`;
       function shuffle(a) {
         for (let i = a.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1));
@@ -3739,7 +3815,7 @@
         const cand = [];
         S.features
           .filter(
-            (o) => o.type === 'runway' && o !== f && o.len > 0 && o.wid > 0,
+            (o) => o.type === "runway" && o !== f && o.len > 0 && o.wid > 0,
           )
           .forEach((o) => cand.push(fmtDim(o.len, o.wid)));
         const widths = [
@@ -3754,11 +3830,11 @@
         return shuffle([...set]);
       }
       function nameQuizTarget(key) {
-        const sep = key.lastIndexOf('|');
+        const sep = key.lastIndexOf("|");
         if (sep > 0) {
           const f = byId(key.slice(0, sep)),
             i = Number(key.slice(sep + 1));
-          const ends = f && f.type === 'runway' ? runwayEnds(f) : null;
+          const ends = f && f.type === "runway" ? runwayEnds(f) : null;
           if (ends && Number.isInteger(i) && ends[i])
             return { feature: f, end: ends[i] };
         }
@@ -3770,7 +3846,7 @@
         const correct = end ? end.label : f.name;
         if (end) {
           const candidates = S.features
-            .filter((x) => x.type === 'runway')
+            .filter((x) => x.type === "runway")
             .flatMap((x) => runwayEnds(x) || [])
             .map((x) => x.label)
             .filter((x) => norm(x) !== norm(correct));
@@ -3813,23 +3889,23 @@
       }
 
       function poolFor(kind) {
-        if (kind === 'mixed')
+        if (kind === "mixed")
           return Object.keys(QKINDS)
-            .filter((k) => k !== 'mixed')
+            .filter((k) => k !== "mixed")
             .flatMap((k) => poolFor(k).map((key) => ({ kind: k, key })));
-        if (kind === 'name')
+        if (kind === "name")
           return quizPool().flatMap((f) => {
-            const ends = f.type === 'runway' ? runwayEnds(f) : null;
+            const ends = f.type === "runway" ? runwayEnds(f) : null;
             return ends ? ends.map((_, i) => `${f.id}|${i}`) : [f.id];
           });
-        if (kind === 'find') return quizPool().map((f) => f.id);
-        if (kind === 'dims')
+        if (kind === "find") return quizPool().map((f) => f.id);
+        if (kind === "dims")
           return S.features
             .filter(
-              (f) => f.type === 'runway' && named(f) && f.len > 0 && f.wid > 0,
+              (f) => f.type === "runway" && named(f) && f.len > 0 && f.wid > 0,
             )
             .map((f) => f.id);
-        if (kind === 'conn')
+        if (kind === "conn")
           return S.features
             .filter((f) => isLine(f) && named(f) && neighbours(f).some(named))
             .map((f) => f.id);
@@ -3837,11 +3913,11 @@
       }
       const IDLE = {
         mixed:
-          'Add named features, runway dimensions and connected lines to build a mixed quiz.',
-        name: 'Name at least one feature in Draw mode first.',
-        find: 'Name at least one feature in Draw mode first.',
-        dims: 'Select a runway in Draw mode and enter its length and width first.',
-        conn: 'Draw some named runways/taxiways that join each other first.',
+          "Add named features, runway dimensions and connected lines to build a mixed quiz.",
+        name: "Name at least one feature in Draw mode first.",
+        find: "Name at least one feature in Draw mode first.",
+        dims: "Select a runway in Draw mode and enter its length and width first.",
+        conn: "Draw some named runways/taxiways that join each other first.",
       };
 
       /* ---------- quiz engine ---------- */
@@ -3850,36 +3926,65 @@
         const f = byId(quiz.cur);
         if (!f) return;
         if (
-          quiz.kind === 'name' ||
-          quiz.kind === 'dims' ||
-          quiz.kind === 'conn'
+          quiz.kind === "name" ||
+          quiz.kind === "dims" ||
+          quiz.kind === "conn"
         )
-          highlight(f, '#4cc9f0', !quiz.answered, false, !quiz.answered);
-        if (quiz.kind === 'name' && quiz.nameEnd) {
-          const e = quiz.nameEnd;
+          highlight(f, "#4cc9f0", !quiz.answered, false, !quiz.answered);
+        if (quiz.kind === "name" && quiz.nameEnd) {
+          const e = quiz.nameEnd,
+            cls = quiz.answered ? "" : "pulse";
           el(
-            'circle',
+            "circle",
             {
               cx: e.pt.x,
               cy: e.pt.y,
-              r: 22,
-              fill: 'none',
-              stroke: '#fbbf24',
-              'stroke-width': 3,
-              'pointer-events': 'none',
-              class: quiz.answered ? '' : 'pulse',
+              r: 26 * k,
+              fill: "none",
+              stroke: "#000",
+              "stroke-width": 9 * k,
+              opacity: 0.55,
+              "pointer-events": "none",
+            },
+            gUI,
+          );
+          el(
+            "circle",
+            {
+              cx: e.pt.x,
+              cy: e.pt.y,
+              r: 24 * k,
+              fill: "#fbbf24",
+              "fill-opacity": 0.28,
+              stroke: "#fbbf24",
+              "stroke-width": 5 * k,
+              "pointer-events": "none",
+              class: cls,
+            },
+            gUI,
+          );
+          el(
+            "circle",
+            {
+              cx: e.pt.x,
+              cy: e.pt.y,
+              r: 30 * k,
+              fill: "none",
+              stroke: "#fff",
+              "stroke-width": 2 * k,
+              "pointer-events": "none",
             },
             gUI,
           );
         }
-        if (quiz.kind === 'conn' && quiz.answered)
+        if (quiz.kind === "conn" && quiz.answered)
           quiz.opts.forEach((id) => {
             const ok = quiz.corr.has(id),
               picked = quiz.checked.has(id);
-            if (ok) highlight(byId(id), '#34d399', false);
-            else if (picked) highlight(byId(id), '#fb7185', false);
+            if (ok) highlight(byId(id), "#34d399", false);
+            else if (picked) highlight(byId(id), "#fb7185", false);
           });
-        if (quiz.kind === 'find' && quiz.reveal)
+        if (quiz.kind === "find" && quiz.reveal)
           highlight(f, quiz.reveal, false);
         else if (quiz.reveal) highlight(f, quiz.reveal, false);
       }
@@ -3919,40 +4024,40 @@
           return;
         }
         const item = quiz.queue.shift();
-        const kind = quiz.roundKind === 'mixed' ? item.kind : quiz.roundKind;
-        const key = quiz.roundKind === 'mixed' ? item.key : item;
+        const kind = quiz.roundKind === "mixed" ? item.kind : quiz.roundKind;
+        const key = quiz.roundKind === "mixed" ? item.key : item;
         quiz.kind = kind;
         Object.assign(quiz, {
           key,
           answered: false,
           reveal: null,
-          fb: '',
+          fb: "",
           fbok: false,
           showIds: null,
           nameEnd: null,
           picked: null,
           checked: new Set(),
-          focus: 'first',
+          focus: "first",
           choices: null,
           opts: null,
         });
         {
-          const target = quiz.kind === 'name' ? nameQuizTarget(key) : null;
+          const target = quiz.kind === "name" ? nameQuizTarget(key) : null;
           const f = target ? target.feature : byId(key);
           if (!f) {
             quiz.total--;
             return nextQ();
           }
           quiz.cur = key;
-          if (quiz.kind === 'name') {
+          if (quiz.kind === "name") {
             quiz.cur = f.id;
             quiz.nameEnd = target.end;
             quiz.correct = target.end ? target.end.label : f.name;
             quiz.choices = nameChoices(target);
-          } else if (quiz.kind === 'dims') {
+          } else if (quiz.kind === "dims") {
             quiz.correct = fmtDim(f.len, f.wid);
             quiz.choices = dimChoices(f);
-          } else if (quiz.kind === 'conn') {
+          } else if (quiz.kind === "conn") {
             const o = connOptions(f);
             quiz.opts = o.opts;
             quiz.corr = o.right;
@@ -3978,14 +4083,14 @@
       function record(ok) {
         quiz.answered = true;
         quiz.fbok = ok;
-        quiz.reveal = ok ? '#34d399' : '#fb7185';
+        quiz.reveal = ok ? "#34d399" : "#fb7185";
         if (ok) {
           quiz.right++;
           quiz.streak++;
         } else {
           quiz.streak = 0;
           const missed =
-            quiz.roundKind === 'mixed'
+            quiz.roundKind === "mixed"
               ? { kind: quiz.kind, key: quiz.key }
               : quiz.key;
           if (
@@ -3996,7 +4101,7 @@
             quiz.missed.push(missed);
         }
         quiz.idx++;
-        quiz.focus = 'next';
+        quiz.focus = "next";
       }
       function finishAnswer() {
         announce(quiz.fb);
@@ -4006,36 +4111,36 @@
       function answerText(txt) {
         if (!quiz || quiz.answered) return;
         const skipped = !String(txt).trim();
-        if (quiz.kind === 'conn') {
+        if (quiz.kind === "conn") {
           const p = parseConnText(txt);
           finishConn(p.ids, p.unknown);
           if (skipped) {
-            quiz.fb = quiz.fb.replace(/^✗/, 'Skipped ·');
+            quiz.fb = quiz.fb.replace(/^✗/, "Skipped ·");
             renderSide();
           }
           return;
         }
         const f = byId(quiz.cur);
         let ok = false;
-        if (quiz.kind === 'name') {
+        if (quiz.kind === "name") {
           ok = norm(txt) === norm(quiz.correct);
-          quiz.fb = ok ? '✓ Correct' : `✗ It was “${quiz.correct}”`;
-        } else if (quiz.kind === 'dims') {
+          quiz.fb = ok ? "✓ Correct" : `✗ It was “${quiz.correct}”`;
+        } else if (quiz.kind === "dims") {
           const n = (String(txt).match(/\d[\d,]*/g) || []).map(
-            (x) => +x.replace(/,/g, ''),
+            (x) => +x.replace(/,/g, ""),
           );
           ok = n[0] === f.len && n[1] === f.wid;
-          quiz.fb = ok ? '✓ Correct' : `✗ It is ${quiz.correct}`;
+          quiz.fb = ok ? "✓ Correct" : `✗ It is ${quiz.correct}`;
         }
-        if (skipped) quiz.fb = quiz.fb.replace(/^✗/, 'Skipped ·');
+        if (skipped) quiz.fb = quiz.fb.replace(/^✗/, "Skipped ·");
         quiz.picked = txt;
         record(ok);
         finishAnswer();
       }
       function answerConn() {
-        if (!quiz || quiz.answered || quiz.kind !== 'conn') return;
+        if (!quiz || quiz.answered || quiz.kind !== "conn") return;
         if (QOPT.typed) {
-          const t = $('typed');
+          const t = $("typed");
           if (t && document.activeElement !== t && !t.value.trim()) {
             t.focus();
             return;
@@ -4079,8 +4184,8 @@
             .map(nm)
             .concat(unknown);
         quiz.fb = ok
-          ? '✓ Correct'
-          : `✗ ${missed.length ? 'Missed: ' + missed.join(', ') + '. ' : ''}${extra.length ? 'Not connected: ' + extra.join(', ') + '.' : ''}`;
+          ? "✓ Correct"
+          : `✗ ${missed.length ? "Missed: " + missed.join(", ") + ". " : ""}${extra.length ? "Not connected: " + extra.join(", ") + "." : ""}`;
         quiz.checked = new Set(c);
         quiz.opts = [...new Set([...quiz.opts, ...c])];
         record(ok);
@@ -4093,52 +4198,52 @@
           g = byId(id);
         record(ok);
         quiz.fb = ok
-          ? '✓ Correct'
-          : `✗ That was “${(g && g.name) || 'unnamed'}”. The correct one is highlighted.`;
-        quiz.reveal = ok ? '#34d399' : '#fb7185';
-        quiz.focus = 'next';
+          ? "✓ Correct"
+          : `✗ That was “${(g && g.name) || "unnamed"}”. The correct one is highlighted.`;
+        quiz.reveal = ok ? "#34d399" : "#fb7185";
+        quiz.focus = "next";
         finishAnswer();
       }
       const reviewLabel = (item) => {
-        const kind = typeof item === 'object' ? item.kind : quiz.roundKind,
-          key = typeof item === 'object' ? item.key : item;
-        if (kind === 'name') {
+        const kind = typeof item === "object" ? item.kind : quiz.roundKind,
+          key = typeof item === "object" ? item.key : item;
+        if (kind === "name") {
           const target = nameQuizTarget(key);
           if (target && target.end) return `RWY ${esc(target.end.label)}`;
-          return esc((target && target.feature.name) || '');
+          return esc((target && target.feature.name) || "");
         }
         return esc((byId(key) || {}).name);
       };
       function renderQuizSide() {
-        const a = $('side'),
+        const a = $("side"),
           kind = QOPT.kind;
-        const typedOK = ['name', 'dims', 'conn', 'mixed'].includes(kind),
-          typesOK = kind === 'mixed' || kind === 'name' || kind === 'find';
+        const typedOK = ["name", "dims", "conn", "mixed"].includes(kind),
+          typesOK = kind === "mixed" || kind === "name" || kind === "find";
         const pc = quiz && quiz.idle ? 0 : poolFor(kind).length;
         const opts = `<div class="sec"><h3>Quiz</h3>
     <label class="lab" for="qkindSel">Quiz type</label>
     <select id="qkindSel" style="width:100%">${Object.entries(QKINDS)
       .map(
         ([k, v]) =>
-          `<option value="${k}" ${kind === k ? 'selected' : ''}>${v}</option>`,
+          `<option value="${k}" ${kind === k ? "selected" : ""}>${v}</option>`,
       )
-      .join('')}</select>
-    ${typedOK ? `<label class="quiz-toggle"><input type="checkbox" id="qtyped" ${QOPT.typed ? 'checked' : ''}><span><strong>Type your answer</strong><small>${kind === 'mixed' ? 'For questions with text answers' : 'Instead of multiple choice'}</small></span></label>` : ''}
+      .join("")}</select>
+    ${typedOK ? `<label class="quiz-toggle"><input type="checkbox" id="qtyped" ${QOPT.typed ? "checked" : ""}><span><strong>Type your answer</strong><small>${kind === "mixed" ? "For questions with text answers" : "Instead of multiple choice"}</small></span></label>` : ""}
     ${
       typesOK
         ? `<div class="chips inline" role="group" aria-label="Include">${Object.keys(
             TYPES,
           )
-            .filter((k) => k !== 'apron')
+            .filter((k) => k !== "apron")
             .map(
               (k) =>
-                `<label class="chip"><input type="checkbox" data-ty="${k}" ${QOPT.types[k] ? 'checked' : ''}>${TYPES[k].label}</label>`,
+                `<label class="chip"><input type="checkbox" data-ty="${k}" ${QOPT.types[k] ? "checked" : ""}>${TYPES[k].label}</label>`,
             )
-            .join('')}</div>`
-        : ''
+            .join("")}</div>`
+        : ""
     }
-    <button class="btn primary" id="qstart" style="width:100%;margin-top:12px" ${poolFor(kind).length ? '' : 'disabled'}>${quiz && !quiz.idle ? 'Restart' : 'Start'} quiz</button></div>`;
-        let body = '';
+    <button class="btn primary" id="qstart" style="width:100%;margin-top:12px" ${poolFor(kind).length ? "" : "disabled"}>${quiz && !quiz.idle ? "Restart" : "Start"} quiz</button></div>`;
+        let body = "";
         if (quiz && quiz.idle)
           body = `<div class="sec"><div class="empty">${esc(quiz.msg)}</div></div>`;
         else if (quiz && quiz.done) {
@@ -4151,84 +4256,85 @@
           ? `<div class="q">Review these</div><div style="margin:6px 0 12px">${quiz.missed
               .map((item, i) => {
                 const kind =
-                    typeof item === 'object' ? item.kind : quiz.roundKind,
-                  key = typeof item === 'object' ? item.key : item;
-                const target = kind === 'name' ? nameQuizTarget(key) : null;
+                    typeof item === "object" ? item.kind : quiz.roundKind,
+                  key = typeof item === "object" ? item.key : item;
+                const target = kind === "name" ? nameQuizTarget(key) : null;
                 const id = target ? target.feature.id : key,
                   f = byId(id);
-                return `<button type="button" class="item" data-miss="${i}">${!f ? '' : typeDot(f.type)}${reviewLabel(item)}</button>`;
+                return `<button type="button" class="item" data-miss="${i}">${!f ? "" : typeDot(f.type)}${reviewLabel(item)}</button>`;
               })
-              .join('')}</div>
+              .join("")}</div>
       <button class="btn primary" id="qretry" style="width:100%">Retry missed only</button>`
           : '<div style="color:var(--ok);font-weight:700">Perfect round! 🎉</div>'
       }</div>`;
         } else if (quiz && quiz.cur) {
           const f = byId(quiz.cur),
-            qn = `<div class="q">Question ${quiz.idx + (quiz.answered ? 0 : 1)} of ${quiz.total}${quiz.roundKind === 'mixed' ? ` · ${QKINDS[quiz.kind]}` : ''}</div>`;
+            qn = `<div class="q">Question ${quiz.idx + (quiz.answered ? 0 : 1)} of ${quiz.total}${quiz.roundKind === "mixed" ? ` · ${QKINDS[quiz.kind]}` : ""}</div>`;
           let q = qn,
             choices = !!quiz.choices;
-          if (quiz.kind === 'name' && quiz.nameEnd)
+          if (quiz.kind === "name" && quiz.nameEnd)
             q +=
               '<div class="qbig" tabindex="-1" id="qhead">What is the runway number at the highlighted end?</div>';
-          else if (quiz.kind === 'name')
+          else if (quiz.kind === "name")
             q += `<div class="qbig" tabindex="-1" id="qhead">What is the highlighted ${TYPES[f.type].label.toLowerCase()}?</div>`;
-          else if (quiz.kind === 'dims')
+          else if (quiz.kind === "dims")
             q += `<div class="qbig" tabindex="-1" id="qhead">What are the dimensions of runway <b>${esc(f.name)}</b>?</div>`;
-          else if (quiz.kind === 'conn')
-            q += `<div class="qbig" tabindex="-1" id="qhead">Which lines connect to <b>${esc(f.name)}</b>?</div><div class="q" style="margin:-6px 0 10px">${QOPT.typed ? 'Connected lines' : 'Tick all that apply'}</div>`;
+          else if (quiz.kind === "conn")
+            q += `<div class="qbig" tabindex="-1" id="qhead">Which lines connect to <b>${esc(f.name)}</b>?</div><div class="q" style="margin:-6px 0 10px">${QOPT.typed ? "Connected lines" : "Tick all that apply"}</div>`;
           else
             q += `<div class="q" style="margin-top:8px">Find the ${TYPES[f.type].label.toLowerCase()}</div><div class="qbig" id="qhead" tabindex="-1">${esc(f.name)}</div>`;
-          if (quiz.kind === 'conn' && QOPT.typed && !quiz.answered) {
+          if (quiz.kind === "conn" && QOPT.typed && !quiz.answered) {
             q += `<label class="quiz-answer-label" for="typed">Type every connected line (${quiz.corr.size}), separated by commas</label><div class="quiz-answer"><input type="text" id="typed" placeholder="e.g. A, B" autocomplete="off"><button class="btn primary" id="tsubmit">Submit</button></div>`;
-          } else if (quiz.kind === 'conn') {
+          } else if (quiz.kind === "conn") {
             q += `<div class="opts" role="group" aria-label="Lines">${quiz.opts
               .filter((id) => !(QOPT.typed && !quiz.corr.has(id)))
               .map((id, i) => {
                 const o = byId(id);
-                let cls = '';
+                let cls = "";
                 if (quiz.answered)
                   cls = quiz.corr.has(id)
-                    ? 'ok'
+                    ? "ok"
                     : quiz.checked.has(id)
-                      ? 'bad'
-                      : '';
-                return `<label class="${cls}"><input type="checkbox" data-o="${id}" data-n="${i + 1}" ${quiz.checked.has(id) ? 'checked' : ''} ${quiz.answered ? 'disabled' : ''}><span class="kb" aria-hidden="true">${i + 1}</span>${esc(o.name)} <small class="muted">${TYPES[o.type].label}</small></label>`;
+                      ? "bad"
+                      : "";
+                return `<label class="${cls}"><input type="checkbox" data-o="${id}" data-n="${i + 1}" ${quiz.checked.has(id) ? "checked" : ""} ${quiz.answered ? "disabled" : ""}><span class="kb" aria-hidden="true">${i + 1}</span>${esc(o.name)} <small class="muted">${TYPES[o.type].label}</small></label>`;
               })
-              .join('')}</div>`;
+              .join("")}</div>`;
             if (!quiz.answered)
               q +=
                 '<button class="btn primary" id="qcheck" style="width:100%;margin-top:10px">Check answer <kbd class="k">⏎</kbd></button>';
-          } else if (choices && QOPT.typed && quiz.kind !== 'find')
+          } else if (choices && QOPT.typed && quiz.kind !== "find")
             q +=
-              quiz.kind === 'dims'
-                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" placeholder="Length" aria-label="Length in metres" autocomplete="off" ${quiz.answered ? 'disabled' : ''}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" placeholder="Width" aria-label="Width in metres" autocomplete="off" ${quiz.answered ? 'disabled' : ''}><button class="btn primary" id="tsubmit" ${quiz.answered ? 'disabled' : ''}>Submit</button></div>`
-                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" placeholder="Type a name…" autocomplete="off" ${quiz.answered ? 'disabled' : ''}><button class="btn primary" id="tsubmit" ${quiz.answered ? 'disabled' : ''}>Submit</button></div>`;
+              quiz.kind === "dims"
+                ? `<div class="quiz-answer-label">Your answer (metres)</div><div class="quiz-answer"><input type="text" id="typed" inputmode="numeric" placeholder="Length" aria-label="Length in metres" autocomplete="off" ${quiz.answered ? "disabled" : ""}><span class="dim-x" aria-hidden="true">×</span><input type="text" id="typed2" inputmode="numeric" placeholder="Width" aria-label="Width in metres" autocomplete="off" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`
+                : `<label class="quiz-answer-label" for="typed">Your answer</label><div class="quiz-answer"><input type="text" id="typed" placeholder="Type a name…" autocomplete="off" ${quiz.answered ? "disabled" : ""}><button class="btn primary" id="tsubmit" ${quiz.answered ? "disabled" : ""}>Submit</button></div>`;
           else if (choices)
             q += `<div class="choices" role="group" aria-label="Answers">${quiz.choices
               .map((c, i) => {
-                let cls = '';
+                let cls = "";
                 if (quiz.answered)
                   cls =
-                    c === quiz.correct ? 'ok' : c === quiz.picked ? 'bad' : '';
-                return `<button type="button" class="${cls}" data-c="${esc(c)}" data-n="${i + 1}" ${quiz.answered ? 'disabled' : ''}><span class="kb" aria-hidden="true">${i + 1}</span>${esc(c)}</button>`;
+                    c === quiz.correct ? "ok" : c === quiz.picked ? "bad" : "";
+                return `<button type="button" class="${cls}" data-c="${esc(c)}" data-n="${i + 1}" ${quiz.answered ? "disabled" : ""}><span class="kb" aria-hidden="true">${i + 1}</span>${esc(c)}</button>`;
               })
-              .join('')}</div>`;
+              .join("")}</div>`;
           body = `<div class="sec"><div class="bar"><i style="width:${(quiz.idx / quiz.total) * 100}%"></i></div>
       <div class="stats"><div><b>${quiz.right}</b><span>correct</span></div><div><b>${quiz.idx - quiz.right}</b><span>missed</span></div><div><b>${quiz.streak}</b><span>streak</span></div></div></div>
-      <div class="sec">${q}<div class="fb ${quiz.fbok ? 'ok' : 'bad'}">${esc(quiz.fb || '')}</div>
-      ${quiz.answered ? '<button class="btn primary" id="qnext" style="width:100%;margin-top:10px">Next <kbd class="k">⏎</kbd></button>' : ''}</div>`;
+      <div class="sec">${q}</div>
+      <div class="qfoot${quiz.answered ? " stuck" : ""}"><div class="fb ${quiz.fbok ? "ok" : "bad"}">${esc(quiz.fb || "")}</div>
+      ${quiz.answered ? '<button class="btn primary" id="qnext" style="width:100%;margin-top:10px">Next <kbd class="k">⏎</kbd></button>' : ""}</div>`;
         } else
-          body = `<div class="sec"><div class="empty">${pc ? `Labels are hidden. Press Start to test your recall (${pc + ' question' + (pc === 1 ? '' : 's')}).` : esc(IDLE[kind])}</div></div>`;
+          body = `<div class="sec"><div class="empty">${pc ? `Labels are hidden. Press Start to test your recall (${pc + " question" + (pc === 1 ? "" : "s")}).` : esc(IDLE[kind])}</div></div>`;
         a.innerHTML = opts + body;
-        $('qstart').onclick = startQuiz;
-        $('qkindSel').onchange = (e) => {
+        $("qstart").onclick = startQuiz;
+        $("qkindSel").onchange = (e) => {
           QOPT.kind = e.target.value;
           quiz = null;
           renderSide();
           render();
           updateHint();
         };
-        const qt = $('qtyped');
+        const qt = $("qtyped");
         if (qt)
           qt.onchange = () => {
             QOPT.typed = qt.checked;
@@ -4236,7 +4342,7 @@
             renderSide();
             render();
           };
-        a.querySelectorAll('[data-ty]').forEach(
+        a.querySelectorAll("[data-ty]").forEach(
           (c) =>
             (c.onchange = () => {
               QOPT.types[c.dataset.ty] = c.checked;
@@ -4245,28 +4351,28 @@
               render();
             }),
         );
-        a.querySelectorAll('[data-c]').forEach(
+        a.querySelectorAll("[data-c]").forEach(
           (b) =>
             (b.onclick = () => {
               quiz.picked = b.dataset.c;
               answerText(b.dataset.c);
             }),
         );
-        a.querySelectorAll('[data-o]').forEach(
+        a.querySelectorAll("[data-o]").forEach(
           (c) =>
             (c.onchange = () => {
               if (c.checked) quiz.checked.add(c.dataset.o);
               else quiz.checked.delete(c.dataset.o);
             }),
         );
-        const qc = $('qcheck');
+        const qc = $("qcheck");
         if (qc) qc.onclick = answerConn;
-        const ts = $('tsubmit');
+        const ts = $("tsubmit");
         if (ts) {
           ts.onclick = () => answerText(typedValue());
-          [$('typed'), $('typed2')].filter(Boolean).forEach((inp) => {
+          [$("typed"), $("typed2")].filter(Boolean).forEach((inp) => {
             inp.onkeydown = (e) => {
-              if (e.key === 'Enter') {
+              if (e.key === "Enter") {
                 e.preventDefault();
                 e.stopPropagation();
                 typedEnter(inp);
@@ -4274,41 +4380,41 @@
             };
           });
         }
-        const nx = $('qnext');
+        const nx = $("qnext");
         if (nx) nx.onclick = nextQ;
-        const rt = $('qretry');
+        const rt = $("qretry");
         if (rt)
           rt.onclick = () =>
             beginRound(quiz.roundKind, shuffle(quiz.missed.slice()));
-        a.querySelectorAll('[data-miss]').forEach(
+        a.querySelectorAll("[data-miss]").forEach(
           (i) =>
             (i.onclick = () => {
               const item = quiz.missed[+i.dataset.miss];
               const kind =
-                typeof item === 'object' ? item.kind : quiz.roundKind;
-              const key = typeof item === 'object' ? item.key : item;
+                typeof item === "object" ? item.kind : quiz.roundKind;
+              const key = typeof item === "object" ? item.key : item;
               quiz.kind = kind;
               quiz.answered = true;
-              quiz.reveal = '#4cc9f0';
+              quiz.reveal = "#4cc9f0";
               quiz.fbok = true;
               quiz.nameEnd = null;
               quiz.key = key;
               quiz.done = false;
-              quiz.fb = 'Reviewing the correct answer';
-              quiz.focus = 'first';
+              quiz.fb = "Reviewing the correct answer";
+              quiz.focus = "first";
               {
-                const target = kind === 'name' ? nameQuizTarget(key) : null;
+                const target = kind === "name" ? nameQuizTarget(key) : null;
                 const f = target ? target.feature : byId(key);
                 quiz.cur = f ? f.id : key;
-                if (kind === 'name' && target) {
+                if (kind === "name" && target) {
                   quiz.nameEnd = target.end;
                   quiz.correct = target.end ? target.end.label : f.name;
                   quiz.choices = nameChoices(target);
-                } else if (kind === 'dims' && f) {
+                } else if (kind === "dims" && f) {
                   quiz.correct = fmtDim(f.len, f.wid);
                   quiz.choices = dimChoices(f);
                 }
-                if (kind === 'conn') {
+                if (kind === "conn") {
                   const o = connOptions(byId(key));
                   quiz.opts = o.opts;
                   quiz.corr = o.right;
@@ -4323,9 +4429,9 @@
         if (quiz && quiz.focus) {
           const t = quiz.focus;
           quiz.focus = null;
-          const target = t === 'next' ? $('qnext') : $('qhead') || $('typed');
+          const target = t === "next" ? $("qnext") : $("qhead") || $("typed");
           if (target) target.focus({ preventScroll: true });
-          if (t === 'first' && $('typed')) $('typed').focus();
+          if (t === "first" && $("typed")) $("typed").focus();
         }
       }
 
@@ -4334,33 +4440,33 @@
         cancelDraft();
         mode = m;
         sel = selV = hover = cursor = kb = null;
-        document.querySelectorAll('#tabs button').forEach((x) => {
+        document.querySelectorAll("#tabs button").forEach((x) => {
           const on = x.dataset.m === m;
-          x.classList.toggle('on', on);
-          x.setAttribute('aria-selected', on);
+          x.classList.toggle("on", on);
+          x.setAttribute("aria-selected", on);
           x.tabIndex = on ? 0 : -1;
         });
-        $('tools').classList.toggle('hidden', m !== 'draw');
-        $('undo').classList.toggle('hidden', m !== 'draw');
-        $('redo').classList.toggle('hidden', m !== 'draw');
-        if (m === 'quiz') quiz = null;
+        $("tools").classList.toggle("hidden", m !== "draw");
+        $("undo").classList.toggle("hidden", m !== "draw");
+        $("redo").classList.toggle("hidden", m !== "draw");
+        if (m === "quiz") quiz = null;
         svg.style.cursor =
-          m === 'draw' ? (tool === 'select' ? '' : 'crosshair') : 'grab';
+          m === "draw" ? (tool === "select" ? "" : "crosshair") : "grab";
         renderSide();
         render();
         updateHint();
         announce(`${m[0].toUpperCase() + m.slice(1)} mode`);
       }
-      const tabBtns = () => [...document.querySelectorAll('#tabs button')];
+      const tabBtns = () => [...document.querySelectorAll("#tabs button")];
       tabBtns().forEach((b) => {
         b.onclick = () => setMode(b.dataset.m);
         b.onkeydown = (e) => {
           const v = tabBtns().filter((x) => x.offsetParent);
           let i = v.indexOf(b);
-          if (e.key === 'ArrowRight') i = (i + 1) % v.length;
-          else if (e.key === 'ArrowLeft') i = (i - 1 + v.length) % v.length;
-          else if (e.key === 'Home') i = 0;
-          else if (e.key === 'End') i = v.length - 1;
+          if (e.key === "ArrowRight") i = (i + 1) % v.length;
+          else if (e.key === "ArrowLeft") i = (i - 1 + v.length) % v.length;
+          else if (e.key === "Home") i = 0;
+          else if (e.key === "End") i = v.length - 1;
           else return;
           e.preventDefault();
           v[i].focus();
@@ -4368,7 +4474,7 @@
         };
       });
 
-      addEventListener('resize', () => render());
+      addEventListener("resize", () => render());
       renderTools();
       renderSide();
       updateHint();
